@@ -42,7 +42,7 @@ public:
 	const int getScreenHeight() const { return SCREEN_HEIGHT; }
 
 	const int getGridSize() const { return GRID_SIZE; }
-	const double getScale() const { return SCALE; }
+	const float getScale() const { return SCALE; }
 
 	const ChipGenerationConfig getChipConfig() const { return CHIP_CONFIG; }
 
@@ -78,7 +78,7 @@ private:
 
 	int SCREEN_WIDTH = 640;
 	int SCREEN_HEIGHT = 640;
-	double SCALE = 2.f;
+	float SCALE = 2.f;
 
 	int GRID_SIZE = 10;
 

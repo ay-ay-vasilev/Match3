@@ -3,7 +3,13 @@
     [
         {
             "name" : "cellTexture",
-            "path" : "assets/images/blue_square.png",
+            "path" : "assets/images/cell_frame.png",
+            "w" : 32,
+            "h" : 32
+        },
+        {
+            "name" : "cellTextureSelected",
+            "path" : "assets/images/cell_frame_selected.png",
             "w" : 32,
             "h" : 32
         },

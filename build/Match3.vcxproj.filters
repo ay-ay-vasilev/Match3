@@ -25,6 +25,12 @@
     <Filter Include="Header Files\Match3">
       <UniqueIdentifier>{d67e17e6-082d-4cf6-b431-5dabaffc9480}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Managers">
+      <UniqueIdentifier>{de5eab85-eb55-4ab4-98fd-d244e2d3cf21}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Common">
+      <UniqueIdentifier>{ace2c257-ed66-47d1-9559-5e2cd83e4b05}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\Game.cpp">
@@ -34,7 +40,10 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\src\Managers\TextureManager.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Managers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Managers\InputManager.cpp">
+      <Filter>Source Files\Managers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -58,6 +67,12 @@
     </ClInclude>
     <ClInclude Include="..\src\Match3\Grid.h">
       <Filter>Header Files\Match3</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Managers\InputManager.h">
+      <Filter>Header Files\Managers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Common\Events.h">
+      <Filter>Header Files\Common</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

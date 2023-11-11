@@ -1,19 +1,19 @@
 #include "Game.h"
 
-#include <iostream>
+#include <memory>
 #include <chrono>
 
 const double FRAME_TIME = 1.0 / 60.0; // Target frame time (60 FPS)
 
 int main(int argc, char* argv[])
 {
-	auto game = match3::Game();
-	game.init();
+	auto game = std::make_unique<Game>();
+	game->init();
 	
 	auto previousTime = std::chrono::steady_clock::now();
 	double accumulator = 0.0;
 
-	while (game.running())
+	while (game->running())
 	{
 		auto currentTime = std::chrono::steady_clock::now();
 		double deltaTime = std::chrono::duration<double>(currentTime - previousTime).count();
@@ -21,17 +21,17 @@ int main(int argc, char* argv[])
 
 		accumulator += deltaTime;
 
-		game.handleEvents();
+		game->handleEvents();
 
 		while (accumulator >= FRAME_TIME)
 		{
-			game.update(FRAME_TIME);
+			game->update(FRAME_TIME);
 			accumulator -= FRAME_TIME;
 		}
 
-		game.render();
+		game->render();
 	}
-	game.clean();
+	game->clean();
 
 	return 0;
 }

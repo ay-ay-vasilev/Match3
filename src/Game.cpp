@@ -1,24 +1,21 @@
 #include "Game.h"
 
+#include <SDL_ttf.h>
+
 #include "TextureManager.h"
+#include "InputManager.h"
 #include "Components.h"
 #include "Systems.h"
 #include "Constants.h"
 
 #include <iostream>
 
-namespace match3
-{
-
 Game::Game()
 {
-	constants = std::make_unique<constants::Constants>();
-	constants->init("../data/constants.json");
+	constants.init("../data/constants.json");
 }
 
-Game::~Game()
-{
-}
+Game::~Game() {}
 
 void Game::init()
 {
@@ -32,7 +29,7 @@ void Game::init()
 		window = SDL_CreateWindow(
 			"Match3",
 			SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-			constants->getScreenWidth(), constants->getScreenHeight(),
+			constants.getScreenWidth(), constants.getScreenHeight(),
 			flags);
 
 		if (window) std::cout << "Window created!\n";
@@ -50,18 +47,42 @@ void Game::init()
 	}
 	else isRunning = false;
 
+	if (TTF_Init() == -1) std::cout << "Error: SDL_TTF\n";
+
 	auto& textureManager = textures::TextureManager::getInstance();
 	textureManager.init(renderer, "../data/assets.json");
 
-	systems.emplace_back(new RenderSystem());
-	systems.emplace_back(new Match3System());
+	auto& inputManager = input::InputManager::getInstance();
+
+	systems.emplace_back(new RenderSystem(registry, dispatcher));
+	systems.emplace_back(new Match3System(registry, dispatcher));
 
 	for (auto& system : systems)
-		system->init(registry, constants);
+		system->init(constants);
 }
 
 void Game::handleEvents()
 {
+	while (SDL_PollEvent(&gameEvent) != 0)
+	{
+		switch (gameEvent.type)
+		{
+		case SDL_QUIT:
+			isRunning = false;
+			break;
+		case SDL_KEYUP:
+		case SDL_KEYDOWN:
+			if (gameEvent.key.keysym.sym == SDLK_ESCAPE)
+				isRunning = false;
+			break;
+
+		case SDL_MOUSEBUTTONDOWN:
+			input::InputManager::getInstance().handleMouseEvent(registry, dispatcher, constants);
+			break;
+		default:
+			break;
+		}
+	}
 }
 
 void Game::update(double delta)
@@ -76,7 +97,7 @@ void Game::render()
 	SDL_RenderClear(renderer);
 	
 	for (auto& system : systems)
-		system->render(registry, renderer);
+		system->render(renderer);
 
 	SDL_RenderPresent(renderer);
 }
@@ -92,6 +113,4 @@ void Game::clean()
 bool Game::running()
 {
 	return isRunning;
-}
-
 }
