@@ -10,6 +10,12 @@
 namespace match3
 {
 
+Game::Game()
+{
+	constants = std::make_unique<constants::Constants>();
+	constants->init("../data/constants.json");
+}
+
 Game::~Game()
 {
 }
@@ -26,7 +32,7 @@ void Game::init()
 		window = SDL_CreateWindow(
 			"Match3",
 			SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-			constants.getScreenWidth(), constants.getScreenHeight(),
+			constants->getScreenWidth(), constants->getScreenHeight(),
 			flags);
 
 		if (window) std::cout << "Window created!\n";
@@ -45,7 +51,7 @@ void Game::init()
 	else isRunning = false;
 
 	auto& textureManager = textures::TextureManager::getInstance();
-	textureManager.init(renderer);
+	textureManager.init(renderer, "../data/assets.json");
 
 	systems.emplace_back(new RenderSystem());
 	systems.emplace_back(new Match3System());

@@ -4,6 +4,7 @@
 #include <SDL.h>
 #include <SDL_image.h>
 #include <entt/entt.hpp>
+#include <memory>
 
 class System;
 
@@ -13,7 +14,7 @@ namespace match3
 class Game
 {
 public:
-	Game() = default;
+	Game();
 	~Game();
 
 	// Interface
@@ -29,7 +30,7 @@ private:
 	// Members
 	entt::registry registry;
 	std::vector<System*> systems;
-	constants::Constants constants;
+	std::unique_ptr<constants::Constants> constants;
 
 	SDL_Window* window{ nullptr };
 	SDL_Event gameEvent{ };

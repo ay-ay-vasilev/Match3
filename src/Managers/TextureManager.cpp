@@ -1,7 +1,7 @@
 #include "TextureManager.h"
 
-#include <string>
 #include <iostream>
+#include <fstream>
 
 namespace textures
 {
@@ -38,25 +38,56 @@ SDL_Surface* loadSurface(const std::string& fileName)
 	return surface;
 }
 
-void TextureManager::init(SDL_Renderer* renderer)
+void TextureManager::init(SDL_Renderer* renderer, const std::string fileName)
 {
 	this->renderer = renderer;
 
-	textureMap["cellTexture"] = loadTexture("assets/images/blue_square.png", renderer);
+	std::ifstream file(fileName);
+	if (!file.is_open())
+	{
+		std::cerr << "Failed to open assets file: " << fileName << std::endl;
+		return;
+	}
 
-	textureMap["chip_red"] = loadTexture("assets/images/chip_red.png", renderer);
-	textureMap["chip_green"] = loadTexture("assets/images/chip_green.png", renderer);
-	textureMap["chip_blue"] = loadTexture("assets/images/chip_blue.png", renderer);
+	nlohmann::json assetsJson;
+	file >> assetsJson;
+	loadFromJsonObject(assetsJson);
 }
 
-SDL_Texture* TextureManager::getTexture(const std::string id) const
+const TextureStruct& TextureManager::getTextureStruct(const std::string id) const
 {
 	auto it = textureMap.find(id);
 	if (it != textureMap.end())
 		return it->second;
 
 	std::cout << "Error: texture not found (" + id + ").\n";
-	return nullptr;
+	return {};
+}
+
+SDL_Texture* TextureManager::getTexture(const std::string id) const
+{
+	return getTextureStruct(id).texture;
+}
+
+const SDL_Rect& TextureManager::getTextureRect(const std::string id) const
+{
+	return getTextureStruct(id).textureRect;
+}
+
+void TextureManager::loadFromJsonObject(const nlohmann::json& assetsJson)
+{
+	if (assetsJson.find("assets") != assetsJson.end())
+	{
+		const auto assets = assetsJson["assets"];
+		for (const auto& asset : assets)
+		{
+			const std::string assetName{ asset["name"] };
+			const std::string assetPath{ asset["path"] };
+			const SDL_Rect assetRect{ 0, 0, asset["w"], asset["h"] };
+
+			textureMap[assetName] = { assetRect, loadTexture(assetPath, renderer) };
+		}
+	}
 }
 
 }

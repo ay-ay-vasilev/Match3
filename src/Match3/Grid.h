@@ -14,35 +14,28 @@ class Grid
 public:
 
 	// Interface
-	void generate(const constants::Constants& constants)
+	void generate(const std::unique_ptr<constants::Constants>& constants)
 	{
 		std::random_device rd;
 		std::mt19937 gen(rd());
-		std::uniform_int_distribution<> randomColorDistribution(0, 2); // todo
 
-		const auto gridSize = constants.getGridSize();
+		const auto chipConfig = constants->getChipConfig();
+		std::vector<double> probabilities;
+		for (const auto& colorRule : chipConfig.colors)
+			probabilities.emplace_back(colorRule.probability);
+
+		std::discrete_distribution<> randomColorDistribution(probabilities.begin(), probabilities.end());
+
+		const auto gridSize = constants->getGridSize();
 		for (int i = 0; i < gridSize; ++i)
 		{
 			std::vector<std::unique_ptr<ChipBase>> gridRow;
 			for (int j = 0; j < gridSize; ++j)
 			{
-				const int color = randomColorDistribution(gen);
-				std::string chipColor = "";
+				const int colorIndex = randomColorDistribution(gen);
+				const std::string& chipColor = chipConfig.colors[colorIndex].name;
 
-				switch (color)
-				{
-				case 0:
-					chipColor = "red";
-					break;
-				case 1:
-					chipColor = "green";
-					break;
-				case 2:
-					chipColor = "blue";
-					break;
-				}
-
-				std::unique_ptr<ChipBase> chip = std::make_unique<ColoredChipDecorator>(std::move(std::make_unique<BasicChip>()), chipColor);
+				std::unique_ptr<ChipBase> chip = std::make_unique<ColoredChipDecorator>(std::make_unique<BasicChip>(), chipColor);
 				gridRow.emplace_back(std::move(chip));
 			}
 			grid.emplace_back(std::move(gridRow));

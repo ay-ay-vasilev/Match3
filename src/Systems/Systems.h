@@ -6,12 +6,13 @@
 #include "Chips.h"
 
 #include <entt/entt.hpp>
+#include <memory>
 
 class System
 {
 public:
 	// Interface
-	virtual void init(entt::registry& registry, const constants::Constants& constants) = 0;
+	virtual void init(entt::registry& registry, const std::unique_ptr<constants::Constants>& constants) = 0;
 	virtual void render(entt::registry& registry, SDL_Renderer* renderer) = 0;
 	virtual void update(double delta) = 0;
 };
@@ -20,9 +21,9 @@ class RenderSystem : public System
 {
 public:
 	// Interface
-	void init(entt::registry& registry, const constants::Constants& constants) override
+	void init(entt::registry& registry, const std::unique_ptr<constants::Constants>& constants) override
 	{
-		scale = constants.getScale();
+		scale = constants->getScale();
 	}
 
 	void update(double delta) override {}
@@ -46,14 +47,12 @@ class Match3System : public System
 {
 public:
 	// Interface
-	void init(entt::registry& registry, const constants::Constants& constants) override
+	void init(entt::registry& registry, const std::unique_ptr<constants::Constants>& constants) override
 	{
 		grid = std::make_unique<match3::Grid>();
 		grid->generate(constants);
 
 		auto& textureManager = textures::TextureManager::getInstance();
-		SDL_Rect textureRect{ 0, 0, 32, 32 }; // todo
-
 		const auto& gridData = grid->getGrid();
 
 		int gridRowNum = 0, gridColNum = 0;
@@ -62,16 +61,25 @@ public:
 			gridColNum = 0;
 			for (const auto& gridCell : gridRow)
 			{
-				entt::entity entityCell = registry.create();
+				{
+					const auto& textureName = "cellTexture";
+					const auto& texture = textureManager.getTexture(textureName);
+					const auto& textureRect = textureManager.getTextureRect(textureName);
 
-				registry.emplace<TransformComponent>(entityCell, textureRect.w * gridRowNum, textureRect.h * gridColNum, textureRect.w, textureRect.h);
-				registry.emplace<SpriteComponent>(entityCell, textureRect, textureManager.getTexture("cellTexture"));
+					entt::entity entityCell = registry.create();
+					registry.emplace<TransformComponent>(entityCell, textureRect.w * gridRowNum, textureRect.h * gridColNum, textureRect.w, textureRect.h);
+					registry.emplace<SpriteComponent>(entityCell, textureRect, texture);
+				}
 
 				if (gridCell->hasColor())
 				{
+					const auto& textureName = "chip_" + gridCell->getColorName();
+					const auto& texture = textureManager.getTexture(textureName);
+					const auto& textureRect = textureManager.getTextureRect(textureName);
+
 					entt::entity entityChip = registry.create();
 					registry.emplace<TransformComponent>(entityChip, textureRect.w * gridRowNum, textureRect.h * gridColNum, textureRect.w, textureRect.h);
-					registry.emplace<SpriteComponent>(entityChip, textureRect, textureManager.getTexture("chip_" + gridCell->getColorName()));
+					registry.emplace<SpriteComponent>(entityChip, textureRect, texture);
 				}
 				++gridColNum;
 			}

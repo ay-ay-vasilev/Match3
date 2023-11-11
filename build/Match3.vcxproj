@@ -118,7 +118,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>D:\projects\personal\c++\Scorewarrior\Match3\src\Match3;D:\projects\personal\c++\Scorewarrior\Match3\src\Components;D:\projects\personal\c++\Scorewarrior\Match3\src\Systems;D:\projects\personal\c++\Scorewarrior\Match3\src\Managers;D:\Program Files\vcpkg\installed\x64-windows\include\entt;D:\projects\personal\c++\Scorewarrior\Match3\lib\SDL2_ttf\include;D:\projects\personal\c++\Scorewarrior\Match3\lib\SDL2_image\include;D:\projects\personal\c++\Scorewarrior\Match3\lib\SDL2\include;D:\projects\personal\c++\Scorewarrior\Match3\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\projects\personal\c++\Scorewarrior\Match3\src\Match3;D:\projects\personal\c++\Scorewarrior\Match3\src\Components;D:\projects\personal\c++\Scorewarrior\Match3\src\Systems;D:\projects\personal\c++\Scorewarrior\Match3\src\Managers;D:\projects\personal\c++\Scorewarrior\Match3\src;D:\Program Files\vcpkg\installed\x64-windows\include\entt;D:\projects\personal\c++\Scorewarrior\Match3\lib\nlohmann\include;D:\projects\personal\c++\Scorewarrior\Match3\lib\SDL2_ttf\include;D:\projects\personal\c++\Scorewarrior\Match3\lib\SDL2_image\include;D:\projects\personal\c++\Scorewarrior\Match3\lib\SDL2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>

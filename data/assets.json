@@ -1,0 +1,29 @@
+{
+    "assets":
+    [
+        {
+            "name" : "cellTexture",
+            "path" : "assets/images/blue_square.png",
+            "w" : 32,
+            "h" : 32
+        },
+        {
+            "name" : "chip_red",
+            "path" : "assets/images/chip_red.png",
+            "w" : 32,
+            "h" : 32
+        },
+        {
+            "name" : "chip_green",
+            "path" : "assets/images/chip_green.png",
+            "w" : 32,
+            "h" : 32
+        },
+        {
+            "name" : "chip_blue",
+            "path" : "assets/images/chip_blue.png",
+            "w" : 32,
+            "h" : 32
+        }
+    ]
+}
