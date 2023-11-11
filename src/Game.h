@@ -1,7 +1,11 @@
 #pragma once
+#include "Constants.h"
+
 #include <SDL.h>
 #include <SDL_image.h>
 #include <entt/entt.hpp>
+
+class System;
 
 namespace match3
 {
@@ -21,26 +25,16 @@ public:
 	bool running();
 
 private:
-	// Constants
-	const static int SCREEN_WIDTH = 640;
-	const static int SCREEN_HEIGHT = 640;
-
-	const static int LEVEL_SIZE = 10;
-	const float SCALE = 2.f;
 
 	// Members
 	entt::registry registry;
+	std::vector<System*> systems;
+	constants::Constants constants;
 
 	SDL_Window* window{ nullptr };
 	SDL_Event gameEvent{ };
 	SDL_Renderer* renderer{ nullptr };
 	bool isRunning{ false };
-
-
-	// todo: remove
-	SDL_Texture* cellTexture;
-	SDL_Texture* chipTexture;
-	SDL_Rect* textureRect;
 };
 
 }

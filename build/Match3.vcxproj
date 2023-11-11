@@ -21,10 +21,16 @@
   <ItemGroup>
     <ClCompile Include="..\src\Game.cpp" />
     <ClCompile Include="..\src\main.cpp" />
+    <ClCompile Include="..\src\Managers\TextureManager.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\src\Components.h" />
+    <ClInclude Include="..\src\Components\Components.h" />
+    <ClInclude Include="..\src\Constants.h" />
     <ClInclude Include="..\src\Game.h" />
+    <ClInclude Include="..\src\Managers\TextureManager.h" />
+    <ClInclude Include="..\src\Match3\Chips.h" />
+    <ClInclude Include="..\src\Match3\Grid.h" />
+    <ClInclude Include="..\src\Systems\Systems.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
@@ -112,7 +118,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>D:\Program Files\vcpkg\installed\x64-windows\include\entt;D:\projects\personal\c++\Scorewarrior\Match3\lib\SDL2_ttf\include;D:\projects\personal\c++\Scorewarrior\Match3\lib\SDL2_image\include;D:\projects\personal\c++\Scorewarrior\Match3\lib\SDL2\include;D:\projects\personal\c++\Scorewarrior\Match3\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\projects\personal\c++\Scorewarrior\Match3\src\Match3;D:\projects\personal\c++\Scorewarrior\Match3\src\Components;D:\projects\personal\c++\Scorewarrior\Match3\src\Systems;D:\projects\personal\c++\Scorewarrior\Match3\src\Managers;D:\Program Files\vcpkg\installed\x64-windows\include\entt;D:\projects\personal\c++\Scorewarrior\Match3\lib\SDL2_ttf\include;D:\projects\personal\c++\Scorewarrior\Match3\lib\SDL2_image\include;D:\projects\personal\c++\Scorewarrior\Match3\lib\SDL2\include;D:\projects\personal\c++\Scorewarrior\Match3\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>

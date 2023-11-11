@@ -1,35 +1,17 @@
 #include "Game.h"
 
+#include "TextureManager.h"
 #include "Components.h"
+#include "Systems.h"
+#include "Constants.h"
 
 #include <iostream>
 
 namespace match3
 {
 
-SDL_Texture* loadTexture(const std::string& fileName, SDL_Renderer* renderer)
-{
-	std::string imagePath = "../";
-	imagePath += fileName;
-
-	SDL_Surface* tempSurface = IMG_Load(imagePath.c_str());
-	if (tempSurface == nullptr)
-	{
-		throw std::runtime_error("Failed to load image: " + fileName + " Error: " + IMG_GetError());
-	}
-	auto texture = SDL_CreateTextureFromSurface(renderer, tempSurface);
-	if (texture == nullptr)
-	{
-		throw std::runtime_error("Failed to create texture from surface: " + fileName + " Error: " + SDL_GetError());
-	}
-	SDL_FreeSurface(tempSurface);
-	return texture;
-}
-
 Game::~Game()
 {
-	SDL_DestroyTexture(cellTexture);
-	SDL_DestroyTexture(chipTexture);
 }
 
 void Game::init()
@@ -44,7 +26,7 @@ void Game::init()
 		window = SDL_CreateWindow(
 			"Match3",
 			SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-			SCREEN_WIDTH, SCREEN_HEIGHT,
+			constants.getScreenWidth(), constants.getScreenHeight(),
 			flags);
 
 		if (window) std::cout << "Window created!\n";
@@ -62,24 +44,14 @@ void Game::init()
 	}
 	else isRunning = false;
 
-	cellTexture = loadTexture("assets/images/blue_square.png", renderer);
-	chipTexture = loadTexture("assets/images/green_circle.png", renderer);
+	auto& textureManager = textures::TextureManager::getInstance();
+	textureManager.init(renderer);
 
-	textureRect = new SDL_Rect({ 0, 0, 32, 32 });
+	systems.emplace_back(new RenderSystem());
+	systems.emplace_back(new Match3System());
 
-	for (int i = 0; i < LEVEL_SIZE; ++i)
-	{
-		for (int j = 0; j < LEVEL_SIZE; ++j)
-		{
-			entt::entity entityCell = registry.create();
-			registry.emplace<TransformComponent>(entityCell, 32 * i * SCALE, 32 * j * SCALE, 32 * SCALE, 32 * SCALE);
-			registry.emplace<SpriteComponent>(entityCell, textureRect, cellTexture);
-
-			entt::entity entityChip = registry.create();
-			registry.emplace<TransformComponent>(entityChip, 32 * i * SCALE, 32 * j * SCALE, 32 * SCALE, 32 * SCALE);
-			registry.emplace<SpriteComponent>(entityChip, textureRect, chipTexture);
-		}
-	}
+	for (auto& system : systems)
+		system->init(registry, constants);
 }
 
 void Game::handleEvents()
@@ -88,6 +60,8 @@ void Game::handleEvents()
 
 void Game::update(double delta)
 {
+	for (auto& system : systems)
+		system->update(delta);
 }
 
 void Game::render()
@@ -95,15 +69,8 @@ void Game::render()
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 	SDL_RenderClear(renderer);
 	
-	auto view = registry.view<TransformComponent, SpriteComponent>();
-	for (auto entity : view)
-	{
-		const SDL_Rect source{ 0, 0, 32, 32 };
-		auto& transformComponent = view.get<TransformComponent>(entity);
-		auto& spriteComponent = view.get<SpriteComponent>(entity);
-		const SDL_Rect destination{ transformComponent.x, transformComponent.y, transformComponent.w, transformComponent.h };
-		SDL_RenderCopyEx(renderer, spriteComponent.texture, spriteComponent.textureRect, &destination, 0, NULL, SDL_FLIP_NONE);
-	}
+	for (auto& system : systems)
+		system->render(registry, renderer);
 
 	SDL_RenderPresent(renderer);
 }

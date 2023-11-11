@@ -13,8 +13,8 @@ struct TransformComponent
 struct SpriteComponent
 {
 	SpriteComponent() = delete;
-	SpriteComponent(SDL_Rect* textureRect, SDL_Texture* texture) : textureRect(textureRect), texture(texture) {}
+	SpriteComponent(SDL_Rect textureRect, SDL_Texture* texture) : textureRect(textureRect), texture(texture) {}
 
-	SDL_Rect* textureRect{};
+	SDL_Rect textureRect{};
 	SDL_Texture* texture{ nullptr };
 };
