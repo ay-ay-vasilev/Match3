@@ -114,32 +114,78 @@ public:
 		}
 	}
 
-	void update(double delta) override {}
+	void update(double delta) override
+	{
+		if (isNeedUpdateSelected)
+		{
+			const auto& selected = grid->getSelectedCells();
+			std::vector<entt::entity> selectedCells;
+
+			auto view = registry.view<GridCellComponent, GridPositionComponent, SpriteComponent>();
+			for (auto& entity : view)
+			{
+				auto& gridPosition = view.get<GridPositionComponent>(entity);
+				auto textureName = "cellTexture";
+
+				for (auto& pos : selected)
+				{
+					if (pos.first != gridPosition.row || pos.second != gridPosition.col) continue;
+					
+					textureName = "cellTextureSelected";
+					selectedCells.emplace_back(entity);
+					break;
+				}
+
+				if (selectedCells.size() == 2)
+				{
+					std::vector<entt::entity> selectedChips;
+
+					auto chipView = registry.view<ChipComponent>();
+
+					for (auto& chipEntity : chipView)
+					{
+						auto& chipGridPosition = registry.get<GridPositionComponent>(chipEntity);
+						if ((chipGridPosition.row == selected[0].first && chipGridPosition.col == selected[0].second) ||
+							(chipGridPosition.row == selected[1].first && chipGridPosition.col == selected[1].second))
+							selectedChips.emplace_back(chipEntity);
+					}
+
+					if (selectedChips.size() == 2)
+					{
+						auto& spriteComponent1 = registry.get<SpriteComponent>(selectedChips[0]);
+						auto& spriteComponent2 = registry.get<SpriteComponent>(selectedChips[1]);
+
+						std::swap(spriteComponent1, spriteComponent2);
+					}
+
+					grid->swapSelected();
+					selectedCells.clear();
+				}
+
+				auto& spriteComponent = view.get<SpriteComponent>(entity);
+				auto& textureManager = textures::TextureManager::getInstance();
+
+				const auto& texture = textureManager.getTexture(textureName);
+				const auto& textureRect = textureManager.getTextureRect(textureName);
+
+				spriteComponent.setTexture(texture);
+				spriteComponent.setTextureRect(textureRect);
+			}
+			isNeedUpdateSelected = false;
+		}
+	}
+
 	void render(SDL_Renderer* renderer) override {}
 
 private:
-	// Service
+	// Events
 	void onChipClicked(const events::ClickGridEvent& event)
 	{
-		auto view = registry.view<GridCellComponent, GridPositionComponent, SpriteComponent>();
-		for (auto& entity : view)
-		{
-			auto& gridPosition = view.get<GridPositionComponent>(entity);
-			if (event.row != gridPosition.row || event.col != gridPosition.col) continue;
-
-			auto& spriteComponent = view.get<SpriteComponent>(entity);
-			auto& textureManager = textures::TextureManager::getInstance();
-
-			const auto& textureName = "cellTextureSelected";
-			const auto& texture = textureManager.getTexture(textureName);
-			const auto& textureRect = textureManager.getTextureRect(textureName);
-
-			spriteComponent.setTexture(texture);
-			spriteComponent.setTextureRect(textureRect);
-			break;
-		}
+		grid->setSelectedCell(event.row, event.col);
+		isNeedUpdateSelected = true;
 	}
 
 	// Members
 	std::unique_ptr<match3::Grid> grid;
+	bool isNeedUpdateSelected{ false };
 };

@@ -5,9 +5,15 @@
 #include <vector>
 #include <memory>
 #include <random>
+#include <array>
 
 namespace match3
 {
+
+bool cellsAreNeighbors(int row1, int col1, int row2, int col2)
+{
+	return ((row1 == row2 && std::abs(col1 - col2) == 1) || (col1 == col2 && std::abs(row1 - row2) == 1));
+}
 
 class Grid
 {
@@ -42,10 +48,45 @@ public:
 		}
 	}
 
+	void setSelectedCell(int row, int col)
+	{
+		if (selectedCells[0].first >= 0 && selectedCells[0].second >= 0 &&
+			selectedCells[1].first >= 0 && selectedCells[1].second >= 0)
+		{
+			selectedCells = { {{-1, -1}, {-1, -1}} };
+		}
+
+		if (selectedCells[0].first < 0 && selectedCells[0].second < 0)
+		{
+			selectedCells[0] = {row, col};
+			return;
+		}
+
+		if (cellsAreNeighbors(row, col, selectedCells[0].first, selectedCells[0].second))
+		{
+			selectedCells[1] = {row, col};
+			return;
+		}
+
+		selectedCells[0] = {row, col};
+	}
+
+	const std::array<std::pair<int, int>, 2>& getSelectedCells() const
+	{
+		return selectedCells;
+	}
+
+	void swapSelected()
+	{
+		std::swap(grid[selectedCells[0].first][selectedCells[0].second], grid[selectedCells[1].first][selectedCells[1].second]);
+		selectedCells = { {{-1, -1}, {-1, -1}} };
+	}
+
 	const std::vector<std::vector<std::unique_ptr<ChipBase>>>& getGrid() const { return grid; }
 
 private:
 	std::vector<std::vector<std::unique_ptr<ChipBase>>> grid;
+	std::array<std::pair<int, int>, 2> selectedCells{ { {-1, -1}, {-1, -1} } };
 };
 
 }
