@@ -26,6 +26,7 @@ class ChipBase
 public:
 	virtual ~ChipBase() = default;
 
+	// Interface
 	virtual std::string getColorName() const = 0;
 	virtual bool hasColor() const = 0;
 };
@@ -33,11 +34,8 @@ public:
 class BasicChip : public ChipBase
 {
 public:
-	std::string getColorName() const override
-	{
-		return "";
-	}
-
+	// Interface
+	std::string getColorName() const override { return ""; }
 	bool hasColor() const override { return false; }
 
 private:
@@ -57,20 +55,9 @@ class ColoredChipDecorator : public ChipDecorator
 public:
 	ColoredChipDecorator(std::unique_ptr<ChipBase> chip, const std::string& color) : ChipDecorator(std::move(chip)), color(chipNameMap.at(color)) {}
 
-	std::string getColorName() const override
-	{
-		const auto it = std::find_if(chipNameMap.begin(), chipNameMap.end(), [this](const auto& pair) {return pair.second == this->color; });
-		if (it != chipNameMap.end())
-		{
-			return it->first;
-		}
-		return chip->getColorName();
-	}
-
-	bool hasColor() const override
-	{
-		return true;
-	}
+	// Interface
+	std::string getColorName() const override;
+	bool hasColor() const override { return true; }
 
 private:
 	eChipColor color;

@@ -14,7 +14,7 @@ void InputManager::handleMouseEvent(entt::registry& registry, entt::dispatcher& 
 {
 	SDL_GetMouseState(&mouseX, &mouseY);
 
-	auto view = registry.view<ChipComponent>();
+	auto view = registry.view<ChipTag>();
 
 	for (auto& entity : view)
 	{

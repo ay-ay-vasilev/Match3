@@ -31,6 +31,12 @@
     <Filter Include="Header Files\Common">
       <UniqueIdentifier>{ace2c257-ed66-47d1-9559-5e2cd83e4b05}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Systems">
+      <UniqueIdentifier>{d0e1f229-ec88-478f-b7e7-44746031b8d2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Match3">
+      <UniqueIdentifier>{33c908eb-f8a5-484e-b178-88acc6f8f90f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\Game.cpp">
@@ -45,6 +51,18 @@
     <ClCompile Include="..\src\Managers\InputManager.cpp">
       <Filter>Source Files\Managers</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Systems\Match3System.cpp">
+      <Filter>Source Files\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Systems\RenderSystem.cpp">
+      <Filter>Source Files\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Match3\Chips.cpp">
+      <Filter>Source Files\Match3</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Match3\Grid.cpp">
+      <Filter>Source Files\Match3</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\Game.h">
@@ -55,9 +73,6 @@
     </ClInclude>
     <ClInclude Include="..\src\Managers\TextureManager.h">
       <Filter>Header Files\Managers</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\Systems\Systems.h">
-      <Filter>Header Files\Systems</Filter>
     </ClInclude>
     <ClInclude Include="..\src\Components\Components.h">
       <Filter>Header Files\Components</Filter>
@@ -73,6 +88,15 @@
     </ClInclude>
     <ClInclude Include="..\src\Common\Events.h">
       <Filter>Header Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Systems\RenderSystem.h">
+      <Filter>Header Files\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Systems\Match3System.h">
+      <Filter>Header Files\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Systems\System.h">
+      <Filter>Header Files\Systems</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

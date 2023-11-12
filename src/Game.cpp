@@ -5,7 +5,8 @@
 #include "TextureManager.h"
 #include "InputManager.h"
 #include "Components.h"
-#include "Systems.h"
+#include "RenderSystem.h"
+#include "Match3System.h"
 #include "Constants.h"
 
 #include <iostream>

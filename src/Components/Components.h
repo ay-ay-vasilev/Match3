@@ -16,15 +16,8 @@ struct SpriteComponent
 	SpriteComponent() = delete;
 	SpriteComponent(SDL_Rect textureRect, SDL_Texture* texture) : textureRect(textureRect), texture(texture) {}
 
-	void setTexture(SDL_Texture* newTexture)
-	{
-		texture = newTexture;
-	}
-
-	void setTextureRect(SDL_Rect newTextureRect)
-	{
-		textureRect = newTextureRect;
-	}
+	void setTexture(SDL_Texture* newTexture) { texture = newTexture; }
+	void setTextureRect(SDL_Rect newTextureRect) { textureRect = newTextureRect; }
 
 	SDL_Rect textureRect{};
 	SDL_Texture* texture{ nullptr };
@@ -43,10 +36,6 @@ struct GridPositionComponent
 	int row{}, col{};
 };
 
-struct ChipComponent
-{
-};
-
-struct GridCellComponent
-{
-};
+// Tags
+struct ChipTag {};
+struct GridCellTag {};

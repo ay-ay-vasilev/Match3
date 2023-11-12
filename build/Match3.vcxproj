@@ -23,6 +23,10 @@
     <ClCompile Include="..\src\main.cpp" />
     <ClCompile Include="..\src\Managers\InputManager.cpp" />
     <ClCompile Include="..\src\Managers\TextureManager.cpp" />
+    <ClCompile Include="..\src\Match3\Chips.cpp" />
+    <ClCompile Include="..\src\Match3\Grid.cpp" />
+    <ClCompile Include="..\src\Systems\Match3System.cpp" />
+    <ClCompile Include="..\src\Systems\RenderSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\Common\Events.h" />
@@ -33,7 +37,9 @@
     <ClInclude Include="..\src\Managers\TextureManager.h" />
     <ClInclude Include="..\src\Match3\Chips.h" />
     <ClInclude Include="..\src\Match3\Grid.h" />
-    <ClInclude Include="..\src\Systems\Systems.h" />
+    <ClInclude Include="..\src\Systems\Match3System.h" />
+    <ClInclude Include="..\src\Systems\RenderSystem.h" />
+    <ClInclude Include="..\src\Systems\System.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
