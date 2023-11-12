@@ -32,7 +32,15 @@ public:
 private:
 	// Service
 	void updateSelected();
+	void resetSelected();
 	void swapChips(const std::array<std::pair<int, int>, 2>& selected);
+	void slideChips(const std::vector<std::vector<std::pair<int, int>>>& chipsToSlide);
+	void checkSliddenChips(const std::vector<std::vector<std::pair<int, int>>>& chipsToSlide);
+	void destroyChips(const std::vector<std::pair<int, int>>& chipsToDestroy);
+
+	void addGridCellEntity(int row, int col);
+	void addGridChipEntity(int row, int col);
+	void addGridChipEntity(int row, int col, int startRow, int startCol); // todo: fix
 
 	// Events
 	void onChipClicked(const events::ClickGridEvent& event);
@@ -40,4 +48,6 @@ private:
 	// Members
 	std::unique_ptr<match3::Grid> grid;
 	bool isNeedUpdateSelected{ false };
+	bool isNeedSlideChipsDown{ false };
+	bool isNeedToCheckForCombos{ false };
 };

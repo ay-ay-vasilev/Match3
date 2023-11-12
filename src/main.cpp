@@ -3,7 +3,7 @@
 #include <memory>
 #include <chrono>
 
-const double FRAME_TIME = 1.0 / 60.0; // Target frame time (60 FPS)
+const double FRAME_TIME = 1.0 / 5.0; // Target frame time (60 FPS)
 
 int main(int argc, char* argv[])
 {

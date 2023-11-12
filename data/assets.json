@@ -30,6 +30,24 @@
             "path" : "assets/images/chip_blue.png",
             "w" : 32,
             "h" : 32
+        },
+        {
+            "name" : "chip_orange",
+            "path" : "assets/images/chip_orange.png",
+            "w" : 32,
+            "h" : 32
+        },
+        {
+            "name" : "chip_yellow",
+            "path" : "assets/images/chip_yellow.png",
+            "w" : 32,
+            "h" : 32
+        },
+        {
+            "name" : "chip_purple",
+            "path" : "assets/images/chip_purple.png",
+            "w" : 32,
+            "h" : 32
         }
     ]
 }

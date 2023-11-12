@@ -1,5 +1,4 @@
 #include "Grid.h"
-#include "Constants.h"
 #include "Chips.h"
 
 #include <random>
@@ -12,29 +11,26 @@ bool cellsAreNeighbors(int row1, int col1, int row2, int col2)
 	return ((row1 == row2 && std::abs(col1 - col2) == 1) || (col1 == col2 && std::abs(row1 - row2) == 1));
 }
 
-void Grid::generate(const constants::Constants& constants)
+void Grid::init(const constants::Constants& constants)
 {
-	std::random_device rd;
-	std::mt19937 gen(rd());
+	chipGenerationConfig = constants.getChipConfig();
+	gridSize = constants.getGridSize();
 
-	const auto chipConfig = constants.getChipConfig();
 	std::vector<double> probabilities;
-	for (const auto& colorRule : chipConfig.colors)
+	for (const auto& colorRule : chipGenerationConfig.colors)
 		probabilities.emplace_back(colorRule.probability);
 
-	std::discrete_distribution<> randomColorDistribution(probabilities.begin(), probabilities.end());
+	randomColorDistribution = std::discrete_distribution<>(probabilities.begin(), probabilities.end());
+}
 
-	gridSize = constants.getGridSize();
+void Grid::generateGrid()
+{
 	for (int i = 0; i < gridSize; ++i)
 	{
 		std::vector<std::unique_ptr<ChipBase>> gridRow;
 		for (int j = 0; j < gridSize; ++j)
 		{
-			const int colorIndex = randomColorDistribution(gen);
-			const std::string& chipColor = chipConfig.colors[colorIndex].name;
-
-			std::unique_ptr<ChipBase> chip = std::make_unique<ColoredChipDecorator>(std::make_unique<BasicChip>(), chipColor);
-			gridRow.emplace_back(std::move(chip));
+			gridRow.emplace_back(std::move(generateRandomChip()));
 		}
 		grid.emplace_back(std::move(gridRow));
 	}
@@ -87,20 +83,32 @@ void Grid::findAndMarkCombo(int row, int col)
 void Grid::checkForCombo(int row, int col, std::string color, std::vector<std::pair<int, int>>& markedChips)
 {
 	int rowIt = row, colIt = col;
+	std::vector<std::pair<int, int>> rowCombo;
+	std::vector<std::pair<int, int>> colCombo;
 
 	markedChips.emplace_back(rowIt, colIt);
+	rowCombo.emplace_back(rowIt, colIt);
+	colCombo.emplace_back(rowIt, colIt);
+
+	bool hasFullLine = false;
 
 	rowIt = row - 1;
-	while (checkCellColor(rowIt, col, color)) markedChips.emplace_back(rowIt--, col);
+	while (checkCellColor(rowIt, col, color)) rowCombo.emplace_back(rowIt--, col);
 
 	rowIt = row + 1;
-	while (checkCellColor(rowIt, col, color)) markedChips.emplace_back(rowIt++, col);
+	while (checkCellColor(rowIt, col, color)) rowCombo.emplace_back(rowIt++, col);
 
 	colIt = col - 1;
-	while (checkCellColor(row, colIt, color)) markedChips.emplace_back(row, colIt--);
+	while (checkCellColor(row, colIt, color)) colCombo.emplace_back(row, colIt--);
 
 	colIt = col + 1;
-	while (checkCellColor(row, colIt, color)) markedChips.emplace_back(row, colIt++);
+	while (checkCellColor(row, colIt, color)) colCombo.emplace_back(row, colIt++);
+
+	if (rowCombo.size() >= 3)
+		markedChips.insert(markedChips.begin(), rowCombo.begin(), rowCombo.end());
+
+	if (colCombo.size() >= 3)
+		markedChips.insert(markedChips.begin(), colCombo.begin(), colCombo.end());
 }
 
 bool Grid::checkCellColor(int row, int col, std::string color)
@@ -109,6 +117,106 @@ bool Grid::checkCellColor(int row, int col, std::string color)
 		col >= 0 && col < gridSize &&
 		grid[row][col] &&
 		grid[row][col]->getColorName() == color;
+}
+
+std::unique_ptr<ChipBase> Grid::generateRandomChip()
+{
+	const int colorIndex = randomColorDistribution(gen);
+	const std::string& chipColor = chipGenerationConfig.colors[colorIndex].name;
+
+	return std::make_unique<ColoredChipDecorator>(std::make_unique<BasicChip>(), chipColor);
+}
+
+void Grid::slideChipsDown()
+{
+	for (int col = 0; col < gridSize; ++col)
+	{
+		slideColumnDown(col);
+		generateChipsInEmptyCells(col);
+	}
+}
+
+std::vector<std::vector<std::pair<int, int>>> Grid::getChipsToSlide() const
+{
+	std::vector<std::vector<std::pair<int, int>>> chipsToSlide;
+	chipsToSlide.assign(gridSize, std::vector<std::pair<int, int>>());
+
+	for (int col = 0; col < gridSize; ++col)
+	{
+		int emptyCells = 0;
+		for (int row = gridSize - 1; row >= 0; --row)
+		{
+			if (!grid[row][col])
+			{
+				++emptyCells;
+				continue;
+			}
+
+			if (emptyCells > 0) chipsToSlide[col].emplace_back(row, row + emptyCells);
+		}
+	}
+
+	const auto emptyCellsCountInCols = getEmptyCellsCountInCols();
+	addGeneratedChipsToChipsToSlide(chipsToSlide, emptyCellsCountInCols);
+
+	return chipsToSlide;
+}
+
+std::vector<int> Grid::getEmptyCellsCountInCols() const
+{
+	std::vector<int> emptyCellsCountInCols(gridSize, 0);
+	for (int row = 0; row < gridSize; ++row)
+	{
+		for (int col = 0; col < gridSize; ++col)
+		{
+			if (!grid[row][col]) ++emptyCellsCountInCols[col];
+		}
+	}
+	return emptyCellsCountInCols;
+}
+
+void Grid::slideColumnDown(int col)
+{
+	int row = gridSize - 2;
+	while (row >= 0)
+	{
+		if (!grid[row + 1][col] && grid[row][col])
+		{
+			int rowIt = row;
+			while (rowIt < gridSize - 1 && !grid[rowIt + 1][col])
+			{
+				std::swap(grid[rowIt + 1][col], grid[rowIt][col]);
+				++rowIt;
+			}
+		}
+		--row;
+	}
+}
+
+void Grid::addGeneratedChipsToChipsToSlide(std::vector<std::vector<std::pair<int, int>>>& chipsToSlide, const std::vector<int>& emptyCellCountInCols) const
+{
+	for (int col = 0; col < gridSize; ++col)
+	{
+		if (emptyCellCountInCols[col] == 0)
+			continue;
+
+		int emptyCellsInCol = emptyCellCountInCols[col];
+		int newChipStartPos = -1;
+		for (int i = 0; i < emptyCellsInCol; ++i)
+		{
+			chipsToSlide[col].emplace_back(newChipStartPos, newChipStartPos + emptyCellsInCol);
+			--newChipStartPos;
+		}
+	}
+}
+
+void Grid::generateChipsInEmptyCells(int col)
+{
+	int row = 0;
+	while (row < gridSize && !grid[row][col])
+	{
+		grid[row++][col] = generateRandomChip();
+	}
 }
 
 const std::vector<std::pair<int, int>> Grid::destroyMarkedChips()

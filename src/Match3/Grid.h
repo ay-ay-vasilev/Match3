@@ -1,13 +1,10 @@
 #pragma once
+#include "Constants.h"
 #include <vector>
 #include <memory>
 #include <array>
 #include <string>
-
-namespace constants
-{
-	class Constants;
-}
+#include <random>
 
 namespace match3
 {
@@ -19,12 +16,15 @@ class Grid
 {
 public:
 	// Interface
-	void generate(const constants::Constants& constants);
+	void init(const constants::Constants& constants);
+	void generateGrid();
 	void setSelectedCell(int row, int col);
 	void swapSelected();
 
 	void findAndMarkCombo(int row, int col);
 	const std::vector<std::pair<int, int>> destroyMarkedChips();
+	void slideChipsDown();
+	std::vector<std::vector<std::pair<int, int>>> getChipsToSlide() const;
 
 	const std::array<std::pair<int, int>, 2> getSelectedCells() const { return selectedCells; }
 	const std::vector<std::vector<std::unique_ptr<ChipBase>>>& getGrid() const { return grid; }
@@ -34,12 +34,26 @@ private:
 	void checkForCombo(int row, int col, std::string color, std::vector<std::pair<int, int>>& markedChips);
 	bool checkCellColor(int row, int col, std::string color);
 
+	std::unique_ptr<ChipBase> generateRandomChip();
+
+	std::vector<int> getEmptyCellsCountInCols() const;
+	void slideColumnDown(int col);
+	void addGeneratedChipsToChipsToSlide(std::vector<std::vector<std::pair<int, int>>>& chipsToSlide, const std::vector<int>& emptyCellCountInCols) const;
+	void generateChipsInEmptyCells(int col);
+
 	// Members
 	std::vector<std::vector<std::unique_ptr<ChipBase>>> grid;
 	std::array<std::pair<int, int>, 2> selectedCells{ { {-1, -1}, {-1, -1} } };
 	std::vector<std::pair<int, int>> chipsToDestroy;
 
+	// Parameters
+	constants::ChipGenerationConfig chipGenerationConfig;
 	int gridSize;
+
+	// Random number generation
+	std::random_device rd;
+	std::mt19937 gen{ rd() };
+	std::discrete_distribution<> randomColorDistribution;
 };
 
 }

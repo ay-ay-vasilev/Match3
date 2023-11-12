@@ -77,9 +77,6 @@
     <ClInclude Include="..\src\Components\Components.h">
       <Filter>Header Files\Components</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\Match3\Chips.h">
-      <Filter>Header Files\Match3</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\Match3\Grid.h">
       <Filter>Header Files\Match3</Filter>
     </ClInclude>
@@ -97,6 +94,9 @@
     </ClInclude>
     <ClInclude Include="..\src\Systems\System.h">
       <Filter>Header Files\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Match3\Chips.h">
+      <Filter>Header Files\Match3</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
