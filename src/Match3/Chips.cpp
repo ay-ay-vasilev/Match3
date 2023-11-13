@@ -13,4 +13,14 @@ std::string ColoredChipDecorator::getColorName() const
 	return chip->getColorName();
 }
 
+std::string BonusChipDecorator::getBonusName() const
+{
+	const auto it = std::find_if(bonusNameMap.begin(), bonusNameMap.end(), [this](const auto& pair) {return pair.second == this->bonus; });
+	if (it != bonusNameMap.end())
+	{
+		return it->first;
+	}
+	return chip->getBonusName();
+}
+
 }

@@ -46,11 +46,11 @@ void Match3System::update(double delta)
 		break;
 
 	case eGridTurnState::SWAP_SELECTED:
-		trySwapChips() ? changeState(eGridTurnState::CHECK_SWAP_COMBOS) : changeState(eGridTurnState::PLAYER_TURN);
+		trySwapChips() ? changeState(eGridTurnState::CHECK_SWAP_MATCHES) : changeState(eGridTurnState::PLAYER_TURN);
 		break;
 
-	case eGridTurnState::CHECK_SWAP_COMBOS:
-		checkSwapCombos() ? changeState(eGridTurnState::DESTROY_COMBOS) : changeState(eGridTurnState::SWAP_SELECTED_BACK);
+	case eGridTurnState::CHECK_SWAP_MATCHES:
+		checkSwapMatches() ? changeState(eGridTurnState::DESTROY_MATCHES) : changeState(eGridTurnState::SWAP_SELECTED_BACK);
 		break;
 
 	case eGridTurnState::SWAP_SELECTED_BACK:
@@ -59,7 +59,7 @@ void Match3System::update(double delta)
 		changeState(eGridTurnState::PLAYER_TURN);
 		break;
 
-	case eGridTurnState::DESTROY_COMBOS:
+	case eGridTurnState::DESTROY_MATCHES:
 		tryDestroyChips() ? changeState(eGridTurnState::SLIDE_CHIPS) : changeState(eGridTurnState::CHECK_VALID_SWAPS);
 		break;
 
@@ -69,7 +69,7 @@ void Match3System::update(double delta)
 
 	case eGridTurnState::SLIDE_CHIPS:
 		slideChips();
-		changeState(eGridTurnState::DESTROY_COMBOS);
+		changeState(eGridTurnState::DESTROY_MATCHES);
 		break;
 	}
 }
@@ -173,7 +173,7 @@ bool Match3System::trySwapChips()
 	return true;
 }
 
-bool Match3System::checkSwapCombos()
+bool Match3System::checkSwapMatches()
 {
 	if (grid->hasChipsToDestroy())
 	{
@@ -213,8 +213,8 @@ void Match3System::swapChips()
 
 	grid->swapSelected();
 
-	grid->findAndMarkCombo(selected[0].first, selected[0].second);
-	grid->findAndMarkCombo(selected[1].first, selected[1].second);
+	grid->findAndMarkMatches(selected[0].first, selected[0].second);
+	grid->findAndMarkMatches(selected[1].first, selected[1].second);
 }
 
 void Match3System::slideChips()
@@ -222,7 +222,7 @@ void Match3System::slideChips()
 	const auto chipsToSlide = grid->getChipsToSlide();
 	grid->slideChipsDown();
 	slideChipEntities(chipsToSlide);
-	checkSliddenChipCombos(chipsToSlide);
+	checkSliddenChipMatches(chipsToSlide);
 }
 
 void Match3System::slideChipEntities(const std::vector<std::vector<std::pair<int, int>>>& chipsToSlide)
@@ -264,12 +264,12 @@ void Match3System::slideChipEntities(const std::vector<std::vector<std::pair<int
 	}
 }
 
-void Match3System::checkSliddenChipCombos(const std::vector<std::vector<std::pair<int, int>>>& chipsToSlide)
+void Match3System::checkSliddenChipMatches(const std::vector<std::vector<std::pair<int, int>>>& chipsToSlide)
 {
 	int col = 0;
 	for (const auto& chipsToSlideInCol : chipsToSlide)
 	{
-		for (const auto& chipToSlide : chipsToSlideInCol) grid->findAndMarkCombo(chipToSlide.second, col);
+		for (const auto& chipToSlide : chipsToSlideInCol) grid->findAndMarkMatches(chipToSlide.second, col);
 		++col;
 	}
 }
@@ -334,7 +334,12 @@ void Match3System::addGridChipEntity(int row, int col, int startRow, int startCo
 {
 	auto& textureManager = textures::TextureManager::getInstance();
 
-	const auto& textureName = "chip_" + grid->getGrid()[row][col]->getColorName();
+	std::string chipTypeName = "chip_";
+	if (grid->getGrid()[row][col]->hasBonus())
+	{
+		chipTypeName = grid->getGrid()[row][col]->getBonusName() + "_";
+	}
+	const auto& textureName = chipTypeName + grid->getGrid()[row][col]->getColorName();
 	const auto& texture = textureManager.getTexture(textureName);
 	const auto& textureRect = textureManager.getTextureRect(textureName);
 

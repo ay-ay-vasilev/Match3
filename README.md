@@ -6,7 +6,7 @@ TODO:
 * Art overhaul DONE
 * Retry logic DONE
 * Game over state DONE
-* Bonus system 
+* Bonus system DONE
 * Game over label
 * Animations ?
 
@@ -22,3 +22,6 @@ Things to improve:
 * Level system
 * Add an option to make and use hand-crafted levels
 * Chip sliding probably needs work
+* Better scale and texture handling
+* Sprite animation
+* Add aliases for complicated structures

@@ -24,9 +24,9 @@ enum class eGridTurnState
 	PLAYER_TURN,
 	UPDATE_SELECTED,
 	SWAP_SELECTED,
-	CHECK_SWAP_COMBOS,
+	CHECK_SWAP_MATCHES,
 	SWAP_SELECTED_BACK,
-	DESTROY_COMBOS,
+	DESTROY_MATCHES,
 	CHECK_VALID_SWAPS,
 	SLIDE_CHIPS,
 	GAME_OVER
@@ -48,14 +48,15 @@ private:
 	void reset();
 	void updateSelected();
 	void resetSelected();
-	bool trySwapChips();
-	bool checkSwapCombos();
-	bool checkValidSlots();
 	void swapChips();
 	void slideChips();
-	void checkSliddenChipCombos(const std::vector<std::vector<std::pair<int, int>>>& chipsToSlide);
-	bool tryDestroyChips();
+	void checkSliddenChipMatches(const std::vector<std::vector<std::pair<int, int>>>& chipsToSlide);
 	void changeState(eGridTurnState newGridTurnState);
+
+	bool tryDestroyChips();
+	bool trySwapChips();
+	bool checkSwapMatches();
+	bool checkValidSlots();
 
 	// Service - Entity Management
 	void slideChipEntities(const std::vector<std::vector<std::pair<int, int>>>& chipsToSlide);

@@ -36,8 +36,10 @@
     <ClInclude Include="..\src\Game.h" />
     <ClInclude Include="..\src\Managers\InputManager.h" />
     <ClInclude Include="..\src\Managers\TextureManager.h" />
+    <ClInclude Include="..\src\Match3\ChipBonusFunctions.h" />
     <ClInclude Include="..\src\Match3\Chips.h" />
     <ClInclude Include="..\src\Match3\Grid.h" />
+    <ClInclude Include="..\src\Match3\Util.h" />
     <ClInclude Include="..\src\Systems\Match3System.h" />
     <ClInclude Include="..\src\Systems\RenderSystem.h" />
     <ClInclude Include="..\src\Systems\GameStateSystem.h" />

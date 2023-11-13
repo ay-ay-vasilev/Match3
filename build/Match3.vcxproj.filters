@@ -104,5 +104,11 @@
     <ClInclude Include="..\src\Systems\GameStateSystem.h">
       <Filter>Header Files\Systems</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\Match3\ChipBonusFunctions.h">
+      <Filter>Header Files\Match3</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Match3\Util.h">
+      <Filter>Header Files\Match3</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

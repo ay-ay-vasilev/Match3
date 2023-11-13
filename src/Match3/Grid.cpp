@@ -1,16 +1,13 @@
 #include "Grid.h"
 #include "Chips.h"
+#include "ChipBonusFunctions.h"
+#include "Util.h"
 
 #include <random>
 #include <algorithm>
 
 namespace match3
 {
-
-bool cellsAreNeighbors(int row1, int col1, int row2, int col2)
-{
-	return ((row1 == row2 && std::abs(col1 - col2) == 1) || (col1 == col2 && std::abs(row1 - row2) == 1));
-}
 
 void Grid::init(const constants::Constants& constants)
 {
@@ -45,8 +42,10 @@ void Grid::generateGrid()
 			}
 			grid.emplace_back(std::move(gridRow));
 		}
-		removeCombos();
+		removeMatches();
 	} while (!hasValidSwaps());
+
+	generateRandomBonusChip();
 }
 
 void Grid::setSelectedCell(int row, int col)
@@ -62,7 +61,7 @@ void Grid::setSelectedCell(int row, int col)
 		return;
 	}
 
-	if (cellsAreNeighbors(row, col, selectedCells[0].first, selectedCells[0].second))
+	if (match3::util::areCellsNeighbors(row, col, selectedCells[0].first, selectedCells[0].second))
 	{
 		selectedCells[1] = { row, col };
 		return;
@@ -106,18 +105,25 @@ bool Grid::hasValidSwaps()
 	return false;
 }
 
-void Grid::findAndMarkCombo(int row, int col)
+void Grid::findAndMarkMatches(int row, int col)
 {
 	const auto& targetColor = grid[row][col]->getColorName();
 	std::vector<std::pair<int, int>> markedChips;
 
-	checkForCombo(row, col, targetColor, markedChips);
+	checkForMatches(row, col, targetColor, markedChips);
 
-	if (markedChips.size() >= MATCH)
+	if (markedChips.size() < MATCH) return;
+
+	for (const auto& chip : markedChips)
+		if (!match3::util::isCellAlreadyAdded(chip.first, chip.second, chipsToDestroy)) chipsToDestroy.emplace_back(chip);
+
+	bool areChipsAdded = false;
+	do
 	{
-		for (const auto& chipPos : markedChips)
-			chipsToDestroy.emplace_back(chipPos);
-	}
+		areChipsAdded = tryAddChipsFromBonus(markedChips);
+		for (const auto& chip : markedChips)
+			if (!match3::util::isCellAlreadyAdded(chip.first, chip.second, chipsToDestroy)) chipsToDestroy.emplace_back(chip);
+	} while (areChipsAdded);
 }
 
 bool Grid::hasChipsToDestroy() const
@@ -125,43 +131,61 @@ bool Grid::hasChipsToDestroy() const
 	return !chipsToDestroy.empty();
 }
 
-void Grid::checkForCombo(int row, int col, std::string color, std::vector<std::pair<int, int>>& markedChips) const
+void Grid::checkForMatches(int row, int col, std::string color, std::vector<std::pair<int, int>>& markedChips) const
 {
 	int rowIt = row, colIt = col;
-	std::vector<std::pair<int, int>> rowCombo;
-	std::vector<std::pair<int, int>> colCombo;
+	std::vector<std::pair<int, int>> rowMatch;
+	std::vector<std::pair<int, int>> colMatch;
 
 	markedChips.emplace_back(rowIt, colIt);
-	rowCombo.emplace_back(rowIt, colIt);
-	colCombo.emplace_back(rowIt, colIt);
-
-	bool hasFullLine = false;
+	rowMatch.emplace_back(rowIt, colIt);
+	colMatch.emplace_back(rowIt, colIt);
 
 	rowIt = row - 1;
-	while (checkCellColor(rowIt, col, color)) rowCombo.emplace_back(rowIt--, col);
+	while (doesCellColorMatch(rowIt, col, color)) rowMatch.emplace_back(rowIt--, col);
 
 	rowIt = row + 1;
-	while (checkCellColor(rowIt, col, color)) rowCombo.emplace_back(rowIt++, col);
+	while (doesCellColorMatch(rowIt, col, color)) rowMatch.emplace_back(rowIt++, col);
 
 	colIt = col - 1;
-	while (checkCellColor(row, colIt, color)) colCombo.emplace_back(row, colIt--);
+	while (doesCellColorMatch(row, colIt, color)) colMatch.emplace_back(row, colIt--);
 
 	colIt = col + 1;
-	while (checkCellColor(row, colIt, color)) colCombo.emplace_back(row, colIt++);
+	while (doesCellColorMatch(row, colIt, color)) colMatch.emplace_back(row, colIt++);
 
-	if (rowCombo.size() >= MATCH)
-		markedChips.insert(markedChips.begin(), rowCombo.begin(), rowCombo.end());
+	if (rowMatch.size() >= MATCH)
+		markedChips.insert(markedChips.begin(), rowMatch.begin(), rowMatch.end());
 
-	if (colCombo.size() >= MATCH)
-		markedChips.insert(markedChips.begin(), colCombo.begin(), colCombo.end());
+	if (colMatch.size() >= MATCH)
+		markedChips.insert(markedChips.begin(), colMatch.begin(), colMatch.end());
+
+	auto it = std::unique(markedChips.begin(), markedChips.end());
+	markedChips.erase(it, markedChips.end());
 }
 
-bool Grid::checkCellColor(int row, int col, std::string color) const
+bool Grid::tryAddChipsFromBonus(std::vector<std::pair<int, int>>& markedChips) const
+{
+	bool chipsAdded = false;
+	for (const auto& chip : chipsToDestroy)
+	{
+		if (!doesCellHaveBonus(chip.first, chip.second)) continue;
+
+		chipsAdded = chipsAdded || tryApplyMarkedChipsFromBonus(chip.first, chip.second, markedChips);
+	}
+	return chipsAdded;
+}
+
+bool Grid::doesCellColorMatch(int row, int col, std::string color) const
 {
 	return row >= 0 && row < gridSize &&
 		col >= 0 && col < gridSize &&
 		grid.at(row).at(col) &&
 		grid.at(row).at(col)->getColorName() == color;
+}
+
+bool Grid::doesCellHaveBonus(int row, int col) const
+{
+	return grid.at(row).at(col)->hasBonus();
 }
 
 bool Grid::checkIfSwapValid(int row1, int col1, int row2, int col2)
@@ -170,8 +194,8 @@ bool Grid::checkIfSwapValid(int row1, int col1, int row2, int col2)
 
 	swapCells(row1, col1, row2, col2);
 
-	checkForCombo(row1, col1, grid[row1][col1]->getColorName(), markedChips);
-	checkForCombo(row2, col2, grid[row2][col2]->getColorName(), markedChips);
+	checkForMatches(row1, col1, grid[row1][col1]->getColorName(), markedChips);
+	checkForMatches(row2, col2, grid[row2][col2]->getColorName(), markedChips);
 
 	swapCells(row1, col1, row2, col2);
 
@@ -201,7 +225,7 @@ void Grid::slideChipsDown()
 	}
 }
 
-std::vector<std::vector<std::pair<int, int>>> Grid::getChipsToSlide() const
+const std::vector<std::vector<std::pair<int, int>>> Grid::getChipsToSlide() const
 {
 	std::vector<std::vector<std::pair<int, int>>> chipsToSlide;
 	chipsToSlide.assign(gridSize, std::vector<std::pair<int, int>>());
@@ -290,7 +314,21 @@ void Grid::generateChipsInEmptyCells(int col)
 	}
 }
 
-void Grid::removeCombos()
+void Grid::generateRandomBonusChip()
+{
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::uniform_int_distribution<size_t> rowDistribution(0, gridSize - 1);
+	std::uniform_int_distribution<size_t> colDistribution(0, gridSize - 1);
+
+	size_t randomRow = rowDistribution(gen);
+	size_t randomCol = colDistribution(gen);
+
+	const auto chipColor = grid[randomRow][randomCol]->getColorName();
+	grid[randomRow][randomCol] = std::make_unique<BonusChipDecorator>(std::make_unique<ColoredChipDecorator>(std::make_unique<BasicChip>(), chipColor), "bomb");
+}
+
+void Grid::removeMatches()
 {
 	bool changed = false;
 
@@ -298,35 +336,35 @@ void Grid::removeCombos()
 	{
 		changed = false;
 
-		int verticalCombo = 1;
+		int verticalMatch = 1;
 		for (int col = 0; col < gridSize; ++col)
 		{
 			for (int row = 1; row < gridSize; ++row)
 			{
-				if (grid[row][col]->getColorName() == grid[row - 1][col]->getColorName()) ++verticalCombo;
-				else verticalCombo = 1;
+				if (grid[row][col]->getColorName() == grid[row - 1][col]->getColorName()) ++verticalMatch;
+				else verticalMatch = 1;
 
-				if (verticalCombo == MATCH)
+				if (verticalMatch == MATCH)
 				{
 					grid[row][col] = generateRandomChip({ grid[row][col]->getColorName() });
-					verticalCombo = 1;
+					verticalMatch = 1;
 					changed = true;
 				}
 			}
 		}
 
-		int horizontalCombo = 1;
+		int horizontalMatch = 1;
 		for (int row = 0; row < gridSize; ++row)
 		{
 			for (int col = 1; col < gridSize; ++col)
 			{
-				if (grid[row][col]->getColorName() == grid[row][col - 1]->getColorName()) ++horizontalCombo;
-				else horizontalCombo = 1;
+				if (grid[row][col]->getColorName() == grid[row][col - 1]->getColorName()) ++horizontalMatch;
+				else horizontalMatch = 1;
 
-				if (horizontalCombo == MATCH)
+				if (horizontalMatch == MATCH)
 				{
 					grid[row][col] = generateRandomChip({ grid[row][col]->getColorName() });
-					horizontalCombo = 1;
+					horizontalMatch = 1;
 					changed = true;
 				}
 			}
@@ -342,6 +380,16 @@ const std::vector<std::pair<int, int>> Grid::destroyMarkedChips()
 	}
 	// return and nullify chipsToDestroy
 	return std::move(chipsToDestroy);
+}
+
+bool Grid::tryApplyMarkedChipsFromBonus(int row, int col, std::vector<std::pair<int, int>>& markedChips) const
+{
+	const auto markedChipsSize = markedChips.size();
+	const auto bonusType = grid.at(row).at(col)->getBonusName();
+
+	match3::bonus::bonusMap.at(bonusType)(row, col, gridSize, markedChips);
+
+	return markedChipsSize < markedChips.size();
 }
 
 }

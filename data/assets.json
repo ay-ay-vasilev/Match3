@@ -4,54 +4,72 @@
         {
             "name" : "cellTexture",
             "path" : "assets/images/cell_frame.png",
-            "w" : 297,
-            "h" : 297
+            "w" : 297, "h" : 297
         },
         {
             "name" : "cellTextureSelected",
             "path" : "assets/images/cell_frame_selected.png",
-            "w" : 297,
-            "h" : 297
+            "w" : 297, "h" : 297
         },
         {
             "name" : "chip_red",
-            "path" : "assets/images/game_icons_crystal_set.png",
-            "x" : 297,
-            "y" : 0,
-            "w" : 297,
-            "h" : 297
+            "path" : "assets/images/regular.png",
+            "x" : 297, "y" : 0,
+            "w" : 297, "h" : 297
         },
         {
             "name" : "chip_green",
-            "path" : "assets/images/game_icons_crystal_set.png",
-            "x" : 594,
-            "y" : 0,
-            "w" : 297,
-            "h" : 297
+            "path" : "assets/images/regular.png",
+            "x" : 594, "y" : 0,
+            "w" : 297, "h" : 297
         },
         {
             "name" : "chip_blue",
-            "path" : "assets/images/game_icons_crystal_set.png",
-            "x" : 0,
-            "y" : 0,
-            "w" : 297,
-            "h" : 297
+            "path" : "assets/images/regular.png",
+            "x" : 0, "y" : 0,
+            "w" : 297, "h" : 297
         },
         {
             "name" : "chip_yellow",
-            "path" : "assets/images/game_icons_crystal_set.png",
-            "x" : 1188,
-            "y" : 0,
-            "w" : 297,
-            "h" : 297
+            "path" : "assets/images/regular.png",
+            "x" : 1188, "y" : 0,
+            "w" : 297, "h" : 297
         },
         {
             "name" : "chip_purple",
-            "path" : "assets/images/game_icons_crystal_set.png",
-            "x" : 891,
-            "y" : 0,
-            "w" : 297,
-            "h" : 297
+            "path" : "assets/images/regular.png",
+            "x" : 891, "y" : 0,
+            "w" : 297, "h" : 297
+        },
+        {
+            "name" : "bomb_red",
+            "path" : "assets/images/bomb.png",
+            "x" : 297, "y" : 0,
+            "w" : 297, "h" : 297
+        },
+        {
+            "name" : "bomb_green",
+            "path" : "assets/images/bomb.png",
+            "x" : 594, "y" : 0,
+            "w" : 297, "h" : 297
+        },
+        {
+            "name" : "bomb_blue",
+            "path" : "assets/images/bomb.png",
+            "x" : 0, "y" : 0,
+            "w" : 297, "h" : 297
+        },
+        {
+            "name" : "bomb_yellow",
+            "path" : "assets/images/bomb.png",
+            "x" : 1188, "y" : 0,
+            "w" : 297, "h" : 297
+        },
+        {
+            "name" : "bomb_purple",
+            "path" : "assets/images/bomb.png",
+            "x" : 891, "y" : 0,
+            "w" : 297, "h" : 297
         }
     ]
 }
