@@ -14,6 +14,7 @@ struct ClickMatch3Event
 };
 
 struct GridReadyEvent {};
+struct GameOverEvent {};
 
 struct PlayerTurnEvent {};
 struct GridTurnEvent {};

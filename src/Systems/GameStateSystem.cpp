@@ -1,10 +1,13 @@
 #include "GameStateSystem.h"
 #include "Components.h"
 
+#include <iostream>
+
 GameStateSystem::GameStateSystem(entt::registry& registry, entt::dispatcher& dispatcher) : System(registry, dispatcher)
 {
 	dispatcher.sink<events::ClickGameStateEvent>().connect<&GameStateSystem::onClick>(this);
 	dispatcher.sink<events::GridReadyEvent>().connect<&GameStateSystem::onGridReady>(this);
+	dispatcher.sink<events::GameOverEvent>().connect<&GameStateSystem::onGameOver>(this);
 }
 
 GameStateSystem::~GameStateSystem()
@@ -36,6 +39,9 @@ void GameStateSystem::changeState(eGameState newState)
 	case eGameState::GRID_TURN:
 		dispatcher.trigger(events::GridTurnEvent{});
 		break;
+	case eGameState::GAME_OVER:
+		std::cout << "Game over!\n";
+		break;
 	}
 }
 
@@ -49,4 +55,9 @@ void GameStateSystem::onClick(const events::ClickGameStateEvent& event)
 void GameStateSystem::onGridReady()
 {
 	changeState(eGameState::PLAYER_TURN);
+}
+
+void GameStateSystem::onGameOver()
+{
+	changeState(eGameState::GAME_OVER);
 }

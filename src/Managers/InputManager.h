@@ -40,13 +40,16 @@ private:
 	// Events
 	void onPlayerTurn();
 	void onGridTurn();
+	void onGameOver();
 
 	// Service
+	void retry(entt::dispatcher& dispatcher);
 
 	//Members
 	int mouseX{ 0 };
 	int mouseY{ 0 };
 	bool blockClicks{ true };
+	bool gameOver{ false };
 };
 
 }

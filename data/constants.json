@@ -2,7 +2,7 @@
     "screen_width" : 800,
     "screen_height" : 800,
     "scale" : 0.25,
-    "grid_size" : 10,
+    "grid_size" : 3,
     "chip_generation_rules" :
     {
         "colors" :

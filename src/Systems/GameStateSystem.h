@@ -7,7 +7,8 @@ enum class eGameState
 {
 	INVALID,
 	PLAYER_TURN,
-	GRID_TURN
+	GRID_TURN,
+	GAME_OVER
 };
 
 class GameStateSystem : public System
@@ -24,6 +25,7 @@ public:
 	// Events
 	void onClick(const events::ClickGameStateEvent& event);
 	void onGridReady();
+	void onGameOver();
 
 private:
 	// Service

@@ -20,8 +20,10 @@ public:
 	void reset();
 	void generateGrid();
 	void setSelectedCell(int row, int col);
+	void swapCells(int row1, int col1, int row2, int col2);
 	void swapSelected();
 	void resetSelected();
+	bool hasValidSwaps();
 
 	void findAndMarkCombo(int row, int col);
 	bool hasChipsToDestroy() const;
@@ -34,9 +36,13 @@ public:
 	const std::vector<std::vector<std::unique_ptr<ChipBase>>>& getGrid() const { return grid; }
 
 private:
+	// Constants
+	const int MATCH = 3;
+
 	// Service
-	void checkForCombo(int row, int col, std::string color, std::vector<std::pair<int, int>>& markedChips);
-	bool checkCellColor(int row, int col, std::string color);
+	void checkForCombo(int row, int col, std::string color, std::vector<std::pair<int, int>>& markedChips) const;
+	bool checkCellColor(int row, int col, std::string color) const;
+	bool checkIfSwapValid(int row1, int col1, int row2, int col2);
 	std::unique_ptr<ChipBase> generateRandomChip(const std::vector<std::string>& bannedColors = {});
 	std::vector<int> getEmptyCellsCountInCols() const;
 	void slideColumnDown(int col);

@@ -27,7 +27,9 @@ enum class eGridTurnState
 	CHECK_SWAP_COMBOS,
 	SWAP_SELECTED_BACK,
 	DESTROY_COMBOS,
-	SLIDE_CHIPS
+	CHECK_VALID_SWAPS,
+	SLIDE_CHIPS,
+	GAME_OVER
 };
 
 class Match3System : public System
@@ -48,6 +50,7 @@ private:
 	void resetSelected();
 	bool trySwapChips();
 	bool checkSwapCombos();
+	bool checkValidSlots();
 	void swapChips();
 	void slideChips();
 	void checkSliddenChipCombos(const std::vector<std::vector<std::pair<int, int>>>& chipsToSlide);

@@ -29,22 +29,24 @@ void Grid::reset()
 	grid.clear();
 	resetSelected();
 	chipsToDestroy.clear();
-
-	generateGrid();
 }
 
 void Grid::generateGrid()
 {
-	for (int i = 0; i < gridSize; ++i)
+	do
 	{
-		std::vector<std::unique_ptr<ChipBase>> gridRow;
-		for (int j = 0; j < gridSize; ++j)
+		reset();
+		for (int i = 0; i < gridSize; ++i)
 		{
-			gridRow.emplace_back(std::move(generateRandomChip()));
+			std::vector<std::unique_ptr<ChipBase>> gridRow;
+			for (int j = 0; j < gridSize; ++j)
+			{
+				gridRow.emplace_back(std::move(generateRandomChip()));
+			}
+			grid.emplace_back(std::move(gridRow));
 		}
-		grid.emplace_back(std::move(gridRow));
-	}
-	removeCombos();
+		removeCombos();
+	} while (!hasValidSwaps());
 }
 
 void Grid::setSelectedCell(int row, int col)
@@ -69,14 +71,39 @@ void Grid::setSelectedCell(int row, int col)
 	selectedCells[0] = { row, col };
 }
 
+void Grid::swapCells(int row1, int col1, int row2, int col2)
+{
+	std::swap(grid[row1][col1], grid[row2][col2]);
+}
+
 void Grid::swapSelected()
 {
-	std::swap(grid[selectedCells[0].first][selectedCells[0].second], grid[selectedCells[1].first][selectedCells[1].second]);
+	swapCells(selectedCells[0].first, selectedCells[0].second, selectedCells[1].first, selectedCells[1].second);
 }
 
 void Grid::resetSelected()
 {
 	selectedCells = { {{-1, -1}, {-1, -1}} };
+}
+
+bool Grid::hasValidSwaps()
+{
+	for (int row = 0; row < gridSize; ++row)
+	{
+		for (int col = 0; col < gridSize; ++col)
+		{
+			if (row > 0 && checkIfSwapValid(row, col, row - 1, col))
+				return true;
+			if (row < gridSize - 1 && checkIfSwapValid(row, col, row + 1, col))
+				return true;
+			if (col > 0 && checkIfSwapValid(row, col, row, col - 1))
+				return true;
+			if (col < gridSize - 1 && checkIfSwapValid(row, col, row, col + 1))
+				return true;
+		}
+	}
+
+	return false;
 }
 
 void Grid::findAndMarkCombo(int row, int col)
@@ -86,7 +113,7 @@ void Grid::findAndMarkCombo(int row, int col)
 
 	checkForCombo(row, col, targetColor, markedChips);
 
-	if (markedChips.size() >= 3)
+	if (markedChips.size() >= MATCH)
 	{
 		for (const auto& chipPos : markedChips)
 			chipsToDestroy.emplace_back(chipPos);
@@ -98,7 +125,7 @@ bool Grid::hasChipsToDestroy() const
 	return !chipsToDestroy.empty();
 }
 
-void Grid::checkForCombo(int row, int col, std::string color, std::vector<std::pair<int, int>>& markedChips)
+void Grid::checkForCombo(int row, int col, std::string color, std::vector<std::pair<int, int>>& markedChips) const
 {
 	int rowIt = row, colIt = col;
 	std::vector<std::pair<int, int>> rowCombo;
@@ -122,19 +149,33 @@ void Grid::checkForCombo(int row, int col, std::string color, std::vector<std::p
 	colIt = col + 1;
 	while (checkCellColor(row, colIt, color)) colCombo.emplace_back(row, colIt++);
 
-	if (rowCombo.size() >= 3)
+	if (rowCombo.size() >= MATCH)
 		markedChips.insert(markedChips.begin(), rowCombo.begin(), rowCombo.end());
 
-	if (colCombo.size() >= 3)
+	if (colCombo.size() >= MATCH)
 		markedChips.insert(markedChips.begin(), colCombo.begin(), colCombo.end());
 }
 
-bool Grid::checkCellColor(int row, int col, std::string color)
+bool Grid::checkCellColor(int row, int col, std::string color) const
 {
 	return row >= 0 && row < gridSize &&
 		col >= 0 && col < gridSize &&
-		grid[row][col] &&
-		grid[row][col]->getColorName() == color;
+		grid.at(row).at(col) &&
+		grid.at(row).at(col)->getColorName() == color;
+}
+
+bool Grid::checkIfSwapValid(int row1, int col1, int row2, int col2)
+{
+	std::vector<std::pair<int, int>> markedChips;
+
+	swapCells(row1, col1, row2, col2);
+
+	checkForCombo(row1, col1, grid[row1][col1]->getColorName(), markedChips);
+	checkForCombo(row2, col2, grid[row2][col2]->getColorName(), markedChips);
+
+	swapCells(row1, col1, row2, col2);
+
+	return markedChips.size() >= MATCH;
 }
 
 std::unique_ptr<ChipBase> Grid::generateRandomChip(const std::vector<std::string>& bannedColors)
@@ -265,7 +306,7 @@ void Grid::removeCombos()
 				if (grid[row][col]->getColorName() == grid[row - 1][col]->getColorName()) ++verticalCombo;
 				else verticalCombo = 1;
 
-				if (verticalCombo == 3)
+				if (verticalCombo == MATCH)
 				{
 					grid[row][col] = generateRandomChip({ grid[row][col]->getColorName() });
 					verticalCombo = 1;
@@ -282,7 +323,7 @@ void Grid::removeCombos()
 				if (grid[row][col]->getColorName() == grid[row][col - 1]->getColorName()) ++horizontalCombo;
 				else horizontalCombo = 1;
 
-				if (horizontalCombo == 3)
+				if (horizontalCombo == MATCH)
 				{
 					grid[row][col] = generateRandomChip({ grid[row][col]->getColorName() });
 					horizontalCombo = 1;

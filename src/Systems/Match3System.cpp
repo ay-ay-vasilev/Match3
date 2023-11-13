@@ -7,6 +7,8 @@
 #include "Events.h"
 #include "Constants.h"
 
+#include <iostream>
+
 Match3System::Match3System(entt::registry& registry, entt::dispatcher& dispatcher) : System(registry, dispatcher) {}
 
 Match3System::~Match3System()
@@ -35,6 +37,7 @@ void Match3System::update(double delta)
 	{
 	case eGridTurnState::INVALID:
 	case eGridTurnState::PLAYER_TURN:
+	case eGridTurnState::GAME_OVER:
 		break;
 
 	case eGridTurnState::UPDATE_SELECTED:
@@ -57,7 +60,11 @@ void Match3System::update(double delta)
 		break;
 
 	case eGridTurnState::DESTROY_COMBOS:
-		tryDestroyChips() ? changeState(eGridTurnState::SLIDE_CHIPS) : changeState(eGridTurnState::PLAYER_TURN);
+		tryDestroyChips() ? changeState(eGridTurnState::SLIDE_CHIPS) : changeState(eGridTurnState::CHECK_VALID_SWAPS);
+		break;
+
+	case eGridTurnState::CHECK_VALID_SWAPS:
+		checkValidSlots() ? changeState(eGridTurnState::PLAYER_TURN) : changeState(eGridTurnState::GAME_OVER);
 		break;
 
 	case eGridTurnState::SLIDE_CHIPS:
@@ -75,6 +82,7 @@ void Match3System::reset()
 
 	clearChipEntities();
 	grid->reset();
+	grid->generateGrid();
 	fillGridWithChipEntities();
 
 	changeState(eGridTurnState::PLAYER_TURN);
@@ -175,6 +183,11 @@ bool Match3System::checkSwapCombos()
 
 	changeState(eGridTurnState::SWAP_SELECTED_BACK);
 	return false;
+}
+
+bool Match3System::checkValidSlots()
+{
+	return grid->hasValidSwaps();
 }
 
 void Match3System::swapChips()
@@ -341,9 +354,10 @@ void Match3System::changeState(eGridTurnState newGridTurnState)
 	gridTurnState = newGridTurnState;
 
 	if (newGridTurnState == eGridTurnState::PLAYER_TURN)
-	{
 		dispatcher.trigger(events::GridReadyEvent{});
-	}
+
+	if (newGridTurnState == eGridTurnState::GAME_OVER)
+		dispatcher.trigger(events::GameOverEvent{});
 }
 
 void Match3System::onClick(const events::ClickMatch3Event& event)
@@ -362,8 +376,10 @@ void Match3System::onClick(const events::ClickMatch3Event& event)
 
 			grid->setSelectedCell(gridPosition.row, gridPosition.col);
 			changeState(eGridTurnState::UPDATE_SELECTED);
+			return;
 		}
 	}
+	changeState(eGridTurnState::PLAYER_TURN);
 }
 
 void Match3System::onRetry()

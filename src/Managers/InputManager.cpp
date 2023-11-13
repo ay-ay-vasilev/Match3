@@ -13,6 +13,7 @@ void InputManager::init(entt::dispatcher& dispatcher)
 {
 	dispatcher.sink<events::PlayerTurnEvent>().connect<&InputManager::onPlayerTurn>(this);
 	dispatcher.sink<events::GridTurnEvent>().connect<&InputManager::onGridTurn>(this);
+	dispatcher.sink<events::GameOverEvent>().connect<&InputManager::onGameOver>(this);
 }
 
 void InputManager::handleEvent(SDL_Event& gameEvent, entt::dispatcher& dispatcher, const constants::Constants& constants)
@@ -20,12 +21,11 @@ void InputManager::handleEvent(SDL_Event& gameEvent, entt::dispatcher& dispatche
 	switch (gameEvent.type)
 	{
 	case SDL_KEYUP:
-		if (gameEvent.key.keysym.sym == SDLK_r)
-			dispatcher.trigger(events::RetryEvent{});
+		if (gameOver || gameEvent.key.keysym.sym == SDLK_r) retry(dispatcher);
 		break;
 
 	case SDL_MOUSEBUTTONDOWN:
-		handleMouseEvent(dispatcher, constants);
+		gameOver ? retry(dispatcher) : handleMouseEvent(dispatcher, constants);
 		break;
 	default:
 		break;
@@ -62,6 +62,14 @@ bool InputManager::isExitGameEvent(SDL_Event& gameEvent)
 	return false;
 }
 
+void InputManager::retry(entt::dispatcher& dispatcher)
+{
+	blockClicks = false;
+	gameOver = false;
+
+	dispatcher.trigger(events::RetryEvent{});
+}
+
 void InputManager::onPlayerTurn()
 {
 	blockClicks = false;
@@ -69,6 +77,12 @@ void InputManager::onPlayerTurn()
 
 void InputManager::onGridTurn()
 {
+	blockClicks = true;
+}
+
+void InputManager::onGameOver()
+{
+	gameOver = true;
 	blockClicks = true;
 }
 
