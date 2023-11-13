@@ -56,7 +56,17 @@ void Match3System::update(double delta)
 		break;
 
 	case eGridTurnState::SWAP_SELECTED:
-		trySwapChips() ? changeState(eGridTurnState::DESTROY_COMBOS) : changeState(eGridTurnState::PLAYER_TURN);
+		trySwapChips() ? changeState(eGridTurnState::CHECK_SWAP_COMBOS) : changeState(eGridTurnState::PLAYER_TURN);
+		break;
+
+	case eGridTurnState::CHECK_SWAP_COMBOS:
+		checkSwapCombos() ? changeState(eGridTurnState::DESTROY_COMBOS) : changeState(eGridTurnState::SWAP_SELECTED_BACK);
+		break;
+
+	case eGridTurnState::SWAP_SELECTED_BACK:
+		swapChips();
+		resetSelected();
+		changeState(eGridTurnState::PLAYER_TURN);
 		break;
 
 	case eGridTurnState::DESTROY_COMBOS:
@@ -117,6 +127,7 @@ void Match3System::resetSelected()
 		spriteComponent.setTexture(texture);
 		spriteComponent.setTextureRect(textureRect);
 	}
+	grid->resetSelected();
 }
 
 bool Match3System::trySwapChips()
@@ -125,8 +136,19 @@ bool Match3System::trySwapChips()
 		return false;
 	
 	swapChips();
-	resetSelected();
 	return true;
+}
+
+bool Match3System::checkSwapCombos()
+{
+	if (grid->hasChipsToDestroy())
+	{
+		resetSelected();
+		return true;
+	}
+
+	changeState(eGridTurnState::SWAP_SELECTED_BACK);
+	return false;
 }
 
 void Match3System::swapChips()

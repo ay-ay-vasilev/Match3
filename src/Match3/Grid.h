@@ -20,8 +20,10 @@ public:
 	void generateGrid();
 	void setSelectedCell(int row, int col);
 	void swapSelected();
+	void resetSelected();
 
 	void findAndMarkCombo(int row, int col);
+	bool hasChipsToDestroy() const;
 	const std::vector<std::pair<int, int>> destroyMarkedChips();
 	void slideChipsDown();
 	std::vector<std::vector<std::pair<int, int>>> getChipsToSlide() const;

@@ -63,9 +63,12 @@ void Grid::setSelectedCell(int row, int col)
 void Grid::swapSelected()
 {
 	std::swap(grid[selectedCells[0].first][selectedCells[0].second], grid[selectedCells[1].first][selectedCells[1].second]);
-	selectedCells = { {{-1, -1}, {-1, -1}} };
 }
 
+void Grid::resetSelected()
+{
+	selectedCells = { {{-1, -1}, {-1, -1}} };
+}
 
 void Grid::findAndMarkCombo(int row, int col)
 {
@@ -79,6 +82,11 @@ void Grid::findAndMarkCombo(int row, int col)
 		for (const auto& chipPos : markedChips)
 			chipsToDestroy.emplace_back(chipPos);
 	}
+}
+
+bool Grid::hasChipsToDestroy() const
+{
+	return !chipsToDestroy.empty();
 }
 
 void Grid::checkForCombo(int row, int col, std::string color, std::vector<std::pair<int, int>>& markedChips)
