@@ -33,13 +33,12 @@ private:
 	// Service
 	void checkForCombo(int row, int col, std::string color, std::vector<std::pair<int, int>>& markedChips);
 	bool checkCellColor(int row, int col, std::string color);
-
-	std::unique_ptr<ChipBase> generateRandomChip();
-
+	std::unique_ptr<ChipBase> generateRandomChip(const std::vector<std::string>& bannedColors = {});
 	std::vector<int> getEmptyCellsCountInCols() const;
 	void slideColumnDown(int col);
 	void addGeneratedChipsToChipsToSlide(std::vector<std::vector<std::pair<int, int>>>& chipsToSlide, const std::vector<int>& emptyCellCountInCols) const;
 	void generateChipsInEmptyCells(int col);
+	void removeCombos();
 
 	// Members
 	std::vector<std::vector<std::unique_ptr<ChipBase>>> grid;

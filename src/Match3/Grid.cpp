@@ -2,6 +2,7 @@
 #include "Chips.h"
 
 #include <random>
+#include <algorithm>
 
 namespace match3
 {
@@ -34,6 +35,7 @@ void Grid::generateGrid()
 		}
 		grid.emplace_back(std::move(gridRow));
 	}
+	removeCombos();
 }
 
 void Grid::setSelectedCell(int row, int col)
@@ -119,10 +121,16 @@ bool Grid::checkCellColor(int row, int col, std::string color)
 		grid[row][col]->getColorName() == color;
 }
 
-std::unique_ptr<ChipBase> Grid::generateRandomChip()
+std::unique_ptr<ChipBase> Grid::generateRandomChip(const std::vector<std::string>& bannedColors)
 {
-	const int colorIndex = randomColorDistribution(gen);
-	const std::string& chipColor = chipGenerationConfig.colors[colorIndex].name;
+	int colorIndex;
+	std::string chipColor;
+
+	do
+	{
+		colorIndex = randomColorDistribution(gen);
+		chipColor = chipGenerationConfig.colors[colorIndex].name;
+	} while (std::find(bannedColors.begin(), bannedColors.end(), chipColor) != bannedColors.end());
 
 	return std::make_unique<ColoredChipDecorator>(std::make_unique<BasicChip>(), chipColor);
 }
@@ -217,6 +225,50 @@ void Grid::generateChipsInEmptyCells(int col)
 	{
 		grid[row++][col] = generateRandomChip();
 	}
+}
+
+void Grid::removeCombos()
+{
+	bool changed = false;
+
+	do
+	{
+		changed = false;
+
+		int verticalCombo = 1;
+		for (int col = 0; col < gridSize; ++col)
+		{
+			for (int row = 1; row < gridSize; ++row)
+			{
+				if (grid[row][col]->getColorName() == grid[row - 1][col]->getColorName()) ++verticalCombo;
+				else verticalCombo = 1;
+
+				if (verticalCombo == 3)
+				{
+					grid[row][col] = generateRandomChip({ grid[row][col]->getColorName() });
+					verticalCombo = 1;
+					changed = true;
+				}
+			}
+		}
+
+		int horizontalCombo = 1;
+		for (int row = 0; row < gridSize; ++row)
+		{
+			for (int col = 1; col < gridSize; ++col)
+			{
+				if (grid[row][col]->getColorName() == grid[row][col - 1]->getColorName()) ++horizontalCombo;
+				else horizontalCombo = 1;
+
+				if (horizontalCombo == 3)
+				{
+					grid[row][col] = generateRandomChip({ grid[row][col]->getColorName() });
+					horizontalCombo = 1;
+					changed = true;
+				}
+			}
+		}
+	} while (changed);
 }
 
 const std::vector<std::pair<int, int>> Grid::destroyMarkedChips()
