@@ -43,25 +43,29 @@ public:
 
 private:
 	// Service
+	void reset();
 	void updateSelected();
 	void resetSelected();
 	bool trySwapChips();
 	bool checkSwapCombos();
 	void swapChips();
 	void slideChips();
-	void slideChipEntities(const std::vector<std::vector<std::pair<int, int>>>& chipsToSlide);
 	void checkSliddenChipCombos(const std::vector<std::vector<std::pair<int, int>>>& chipsToSlide);
 	bool tryDestroyChips();
-	void destroyChips(const std::vector<std::pair<int, int>>& chipsToDestroy);
+	void changeState(eGridTurnState newGridTurnState);
 
+	// Service - Entity Management
+	void slideChipEntities(const std::vector<std::vector<std::pair<int, int>>>& chipsToSlide);
+	void destroyChipEntities(const std::vector<std::pair<int, int>>& chipsToDestroy);
+	void clearChipEntities();
+	void fillGridWithChipEntities();
 	void addGridCellEntity(int row, int col);
 	void addGridChipEntity(int row, int col);
 	void addGridChipEntity(int row, int col, int startRow, int startCol); // todo: fix
 
-	void changeState(eGridTurnState newGridTurnState);
-
 	// Events
 	void onClick(const events::ClickMatch3Event& event);
+	void onRetry();
 
 	// Members
 	eGridTurnState gridTurnState{ eGridTurnState::INVALID };

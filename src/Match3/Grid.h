@@ -17,6 +17,7 @@ class Grid
 public:
 	// Interface
 	void init(const constants::Constants& constants);
+	void reset();
 	void generateGrid();
 	void setSelectedCell(int row, int col);
 	void swapSelected();

@@ -31,7 +31,10 @@ public:
 
 	// Interface
 	void init(entt::dispatcher& dispatcher);
+	void handleEvent(SDL_Event& gameEvent, entt::dispatcher& dispatcher, const constants::Constants& constants);
 	void handleMouseEvent(entt::dispatcher& dispatcher, const constants::Constants& constants);
+
+	bool isExitGameEvent(SDL_Event& gameEvent);
 
 private:
 	// Events

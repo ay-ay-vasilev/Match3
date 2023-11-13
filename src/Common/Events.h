@@ -17,5 +17,6 @@ struct GridReadyEvent {};
 
 struct PlayerTurnEvent {};
 struct GridTurnEvent {};
+struct RetryEvent {};
 
 }

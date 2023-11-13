@@ -24,6 +24,15 @@ void Grid::init(const constants::Constants& constants)
 	randomColorDistribution = std::discrete_distribution<>(probabilities.begin(), probabilities.end());
 }
 
+void Grid::reset()
+{
+	grid.clear();
+	resetSelected();
+	chipsToDestroy.clear();
+
+	generateGrid();
+}
+
 void Grid::generateGrid()
 {
 	for (int i = 0; i < gridSize; ++i)

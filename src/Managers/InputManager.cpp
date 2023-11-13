@@ -15,6 +15,23 @@ void InputManager::init(entt::dispatcher& dispatcher)
 	dispatcher.sink<events::GridTurnEvent>().connect<&InputManager::onGridTurn>(this);
 }
 
+void InputManager::handleEvent(SDL_Event& gameEvent, entt::dispatcher& dispatcher, const constants::Constants& constants)
+{
+	switch (gameEvent.type)
+	{
+	case SDL_KEYUP:
+		if (gameEvent.key.keysym.sym == SDLK_r)
+			dispatcher.trigger(events::RetryEvent{});
+		break;
+
+	case SDL_MOUSEBUTTONDOWN:
+		handleMouseEvent(dispatcher, constants);
+		break;
+	default:
+		break;
+	}
+}
+
 void InputManager::handleMouseEvent(entt::dispatcher& dispatcher, const constants::Constants& constants)
 {
 	if (blockClicks) return;
@@ -27,6 +44,22 @@ void InputManager::handleMouseEvent(entt::dispatcher& dispatcher, const constant
 	dispatcher.trigger(events::ClickGameStateEvent{ scaledMouseX, scaledMouseY });
 
 	blockClicks = true;
+}
+
+bool InputManager::isExitGameEvent(SDL_Event& gameEvent)
+{
+	switch (gameEvent.type)
+	{
+	case SDL_QUIT:
+		return true;
+
+	case SDL_KEYUP:
+		if (gameEvent.key.keysym.sym == SDLK_ESCAPE)
+			return true;
+		break;
+	}
+
+	return false;
 }
 
 void InputManager::onPlayerTurn()

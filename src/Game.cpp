@@ -69,23 +69,14 @@ void Game::handleEvents()
 {
 	while (SDL_PollEvent(&gameEvent) != 0)
 	{
-		switch (gameEvent.type)
-		{
-		case SDL_QUIT:
-			isRunning = false;
-			break;
-		case SDL_KEYUP:
-		case SDL_KEYDOWN:
-			if (gameEvent.key.keysym.sym == SDLK_ESCAPE)
-				isRunning = false;
-			break;
+		auto& inputManager = input::InputManager::getInstance();
 
-		case SDL_MOUSEBUTTONDOWN:
-			input::InputManager::getInstance().handleMouseEvent(dispatcher, constants);
-			break;
-		default:
-			break;
+		if (inputManager.isExitGameEvent(gameEvent))
+		{
+			isRunning = false;
+			return;
 		}
+		inputManager.handleEvent(gameEvent, dispatcher, constants);
 	}
 }
 
