@@ -17,7 +17,7 @@ Match3System::~Match3System()
 	dispatcher.sink<events::RetryEvent>().disconnect(this);
 }
 
-void Match3System::init(const constants::Constants& constants)
+void Match3System::init(const constants::Constants& constants, SDL_Renderer* renderer)
 {
 	dispatcher.sink<events::ClickMatch3Event>().connect<&Match3System::onClick>(this);
 	dispatcher.sink<events::RetryEvent>().connect<&Match3System::onRetry>(this);
@@ -64,11 +64,13 @@ void Match3System::update(double delta)
 		break;
 
 	case eGridTurnState::CHECK_VALID_SWAPS:
+		resetGridCellTextures();
 		checkValidSlots() ? changeState(eGridTurnState::PLAYER_TURN) : changeState(eGridTurnState::GAME_OVER);
 		break;
 
 	case eGridTurnState::SLIDE_CHIPS:
 		slideChips();
+		resetGridCellTextures();
 		changeState(eGridTurnState::DESTROY_MATCHES);
 		break;
 	}
@@ -291,10 +293,10 @@ bool Match3System::tryDestroyChips()
 
 void Match3System::destroyChipEntities(const std::vector<std::pair<int, int>>& chipsToDestroy)
 {
-	auto view = registry.view<ChipTag, GridPositionComponent>();
-	for (auto& entity : view)
+	auto chipView = registry.view<ChipTag, GridPositionComponent>();
+	for (auto& entity : chipView)
 	{
-		auto& gridPosition = view.get<GridPositionComponent>(entity);
+		auto& gridPosition = chipView.get<GridPositionComponent>(entity);
 		bool found{ false };
 		for (auto& chipPos : chipsToDestroy)
 		{
@@ -307,6 +309,32 @@ void Match3System::destroyChipEntities(const std::vector<std::pair<int, int>>& c
 		if (!found) continue;
 
 		registry.destroy(entity);
+	}
+
+	auto cellView = registry.view<GridCellTag, GridPositionComponent, SpriteComponent>();
+	for (auto& entity : cellView)
+	{
+		auto& gridPosition = cellView.get<GridPositionComponent>(entity);
+		bool found{ false };
+		for (auto& chipPos : chipsToDestroy)
+		{
+			if (chipPos.first != gridPosition.row || chipPos.second != gridPosition.col)
+				continue;
+			found = true;
+			break;
+		}
+
+		if (!found) continue;
+
+		auto& spriteComponent = cellView.get<SpriteComponent>(entity);
+		auto& textureManager = textures::TextureManager::getInstance();
+
+		const std::string textureName = "fire";
+		const auto& texture = textureManager.getTexture(textureName);
+		const auto& textureRect = textureManager.getTextureRect(textureName);
+
+		spriteComponent.setTexture(texture);
+		spriteComponent.setTextureRect(textureRect);
 	}
 }
 
@@ -351,6 +379,23 @@ void Match3System::addGridChipEntity(int row, int col, int startRow, int startCo
 	registry.emplace<GridPositionComponent>(entityChip, startRow, startCol);
 }
 
+void Match3System::resetGridCellTextures()
+{
+	auto view = registry.view<GridCellTag, SpriteComponent>();
+	for (auto& entity : view)
+	{
+		auto& spriteComponent = view.get<SpriteComponent>(entity);
+		auto& textureManager = textures::TextureManager::getInstance();
+
+		const std::string textureName = "cellTexture";
+		const auto& texture = textureManager.getTexture(textureName);
+		const auto& textureRect = textureManager.getTextureRect(textureName);
+
+		spriteComponent.setTexture(texture);
+		spriteComponent.setTextureRect(textureRect);
+	}
+}
+
 void Match3System::changeState(eGridTurnState newGridTurnState)
 {
 	if (gridTurnState == newGridTurnState)
@@ -384,7 +429,8 @@ void Match3System::onClick(const events::ClickMatch3Event& event)
 			return;
 		}
 	}
-	changeState(eGridTurnState::PLAYER_TURN);
+
+	if (gridTurnState == eGridTurnState::PLAYER_TURN) dispatcher.trigger(events::MissclickEvent{});
 }
 
 void Match3System::onRetry()

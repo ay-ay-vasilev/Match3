@@ -30,7 +30,7 @@ public:
 	InputManager& operator=(InputManager&&) = delete;
 
 	// Interface
-	void init(entt::dispatcher& dispatcher);
+	void init(entt::dispatcher& dispatcher, const constants::Constants& constants);
 	void handleEvent(SDL_Event& gameEvent, entt::dispatcher& dispatcher, const constants::Constants& constants);
 	void handleMouseEvent(entt::dispatcher& dispatcher, const constants::Constants& constants);
 
@@ -41,11 +41,13 @@ private:
 	void onPlayerTurn();
 	void onGridTurn();
 	void onGameOver();
+	void onMissclick();
 
 	// Service
 	void retry(entt::dispatcher& dispatcher);
 
 	//Members
+	std::pair<int, int> offset{ 0, 0 };
 	int mouseX{ 0 };
 	int mouseY{ 0 };
 	bool blockClicks{ true };

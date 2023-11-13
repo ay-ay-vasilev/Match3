@@ -2,6 +2,16 @@
     "assets":
     [
         {
+            "name" : "blackTexture",
+            "path" : "assets/images/black.png",
+            "w" : 1, "h" : 1
+        },
+        {
+            "name" : "fire",
+            "path" : "assets/images/fire.png",
+            "w" : 297, "h" : 297
+        },
+        {
             "name" : "cellTexture",
             "path" : "assets/images/cell_frame.png",
             "w" : 297, "h" : 297

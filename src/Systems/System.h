@@ -11,7 +11,7 @@ public:
 	System(entt::registry& registry, entt::dispatcher& dispatcher) : registry(registry), dispatcher(dispatcher) {}
 	virtual ~System() {};
 	// Interface
-	virtual void init(const constants::Constants& constants) = 0;
+	virtual void init(const constants::Constants& constants, SDL_Renderer* renderer) = 0;
 	virtual void render(SDL_Renderer* renderer) = 0;
 	virtual void update(double delta) = 0;
 

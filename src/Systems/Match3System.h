@@ -39,7 +39,7 @@ public:
 	~Match3System() override;
 
 	// Interface
-	void init(const constants::Constants& constants) override;
+	void init(const constants::Constants& constants, SDL_Renderer* renderer) override;
 	void update(double delta) override;
 	void render(SDL_Renderer* renderer) override;
 
@@ -66,6 +66,7 @@ private:
 	void addGridCellEntity(int row, int col);
 	void addGridChipEntity(int row, int col);
 	void addGridChipEntity(int row, int col, int startRow, int startCol); // todo: fix
+	void resetGridCellTextures();
 
 	// Events
 	void onClick(const events::ClickMatch3Event& event);

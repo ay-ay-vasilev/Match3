@@ -13,6 +13,7 @@ struct ClickMatch3Event
 	int mouseX, mouseY;
 };
 
+struct MissclickEvent {};
 struct GridReadyEvent {};
 struct GameOverEvent {};
 

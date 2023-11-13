@@ -8,6 +8,7 @@
 #include "RenderSystem.h"
 #include "GameStateSystem.h"
 #include "Match3System.h"
+#include "UISystem.h"
 #include "Constants.h"
 
 #include <iostream>
@@ -55,14 +56,15 @@ void Game::init()
 	textureManager.init(renderer, "../data/assets.json");
 
 	auto& inputManager = input::InputManager::getInstance();
-	inputManager.init(dispatcher);
+	inputManager.init(dispatcher, constants);
 
 	systems.emplace_back(new RenderSystem(registry, dispatcher));
 	systems.emplace_back(new GameStateSystem(registry, dispatcher));
 	systems.emplace_back(new Match3System(registry, dispatcher));
+	systems.emplace_back(new UISystem(registry, dispatcher));
 
 	for (auto& system : systems)
-		system->init(constants);
+		system->init(constants, renderer);
 }
 
 void Game::handleEvents()

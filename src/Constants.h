@@ -42,6 +42,7 @@ public:
 	const int getScreenHeight() const { return SCREEN_HEIGHT; }
 
 	const int getGridSize() const { return GRID_SIZE; }
+	const int getGridCellSize() const { return GRID_CELL_SIZE; }
 	const float getScale() const { return SCALE; }
 
 	const ChipGenerationConfig getChipConfig() const { return CHIP_CONFIG; }
@@ -66,6 +67,10 @@ private:
 		{
 			GRID_SIZE = constantsJson["grid_size"];
 		}
+		if (constantsJson.find("grid_cell_size") != constantsJson.end())
+		{
+			GRID_CELL_SIZE = constantsJson["grid_cell_size"];
+		}
 		if (constantsJson.find("chip_generation_rules") != constantsJson.end())
 		{
 			const auto colors = constantsJson["chip_generation_rules"]["colors"];
@@ -81,6 +86,7 @@ private:
 	float SCALE = 2.f;
 
 	int GRID_SIZE = 10;
+	int GRID_CELL_SIZE = 297;
 
 	ChipGenerationConfig CHIP_CONFIG;
 };

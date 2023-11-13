@@ -9,11 +9,15 @@
 namespace input
 {
 
-void InputManager::init(entt::dispatcher& dispatcher)
+void InputManager::init(entt::dispatcher& dispatcher, const constants::Constants& constants)
 {
 	dispatcher.sink<events::PlayerTurnEvent>().connect<&InputManager::onPlayerTurn>(this);
 	dispatcher.sink<events::GridTurnEvent>().connect<&InputManager::onGridTurn>(this);
 	dispatcher.sink<events::GameOverEvent>().connect<&InputManager::onGameOver>(this);
+	dispatcher.sink<events::MissclickEvent>().connect<&InputManager::onMissclick>(this);
+
+	offset.first = (constants.getScreenWidth() - constants.getGridCellSize() * constants.getScale() * constants.getGridSize()) / 2;
+	offset.second = (constants.getScreenHeight() - constants.getGridCellSize() * constants.getScale() * constants.getGridSize()) / 2;
 }
 
 void InputManager::handleEvent(SDL_Event& gameEvent, entt::dispatcher& dispatcher, const constants::Constants& constants)
@@ -36,14 +40,14 @@ void InputManager::handleMouseEvent(entt::dispatcher& dispatcher, const constant
 {
 	if (blockClicks) return;
 
+	blockClicks = true;
+
 	SDL_GetMouseState(&mouseX, &mouseY);
 
-	int scaledMouseX = static_cast<int>(mouseX / constants.getScale());
-	int scaledMouseY = static_cast<int>(mouseY / constants.getScale());
+	int scaledMouseX = static_cast<int>((mouseX - offset.first) / constants.getScale());
+	int scaledMouseY = static_cast<int>((mouseY - offset.second) / constants.getScale());
 
 	dispatcher.trigger(events::ClickGameStateEvent{ scaledMouseX, scaledMouseY });
-
-	blockClicks = true;
 }
 
 bool InputManager::isExitGameEvent(SDL_Event& gameEvent)
@@ -84,6 +88,11 @@ void InputManager::onGameOver()
 {
 	gameOver = true;
 	blockClicks = true;
+}
+
+void InputManager::onMissclick()
+{
+	blockClicks = false;
 }
 
 }

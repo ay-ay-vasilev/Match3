@@ -16,7 +16,7 @@ GameStateSystem::~GameStateSystem()
 	dispatcher.sink<events::GridReadyEvent>().disconnect(this);
 }
 
-void GameStateSystem::init(const constants::Constants& constants) {}
+void GameStateSystem::init(const constants::Constants& constants, SDL_Renderer* renderer) {}
 
 void GameStateSystem::update(double delta) {}
 
@@ -40,16 +40,15 @@ void GameStateSystem::changeState(eGameState newState)
 		dispatcher.trigger(events::GridTurnEvent{});
 		break;
 	case eGameState::GAME_OVER:
-		std::cout << "Game over!\n";
 		break;
 	}
 }
 
 void GameStateSystem::onClick(const events::ClickGameStateEvent& event)
 {
-	dispatcher.trigger(events::ClickMatch3Event{ event.mouseX, event.mouseY});
-
 	changeState(eGameState::GRID_TURN);
+
+	dispatcher.trigger(events::ClickMatch3Event{ event.mouseX, event.mouseY});
 }
 
 void GameStateSystem::onGridReady()
