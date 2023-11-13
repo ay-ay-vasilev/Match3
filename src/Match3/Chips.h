@@ -12,7 +12,6 @@ enum class eChipColor
 	RED,
 	GREEN,
 	BLUE,
-	ORANGE,
 	PURPLE,
 	YELLOW
 };
@@ -22,7 +21,6 @@ const static std::unordered_map<std::string, eChipColor> chipNameMap =
 	{"red", eChipColor::RED},
 	{"green", eChipColor::GREEN},
 	{"blue", eChipColor::BLUE},
-	{"orange", eChipColor::ORANGE},
 	{"purple", eChipColor::PURPLE},
 	{"yellow", eChipColor::YELLOW}
 };

@@ -40,8 +40,7 @@ void Grid::generateGrid()
 
 void Grid::setSelectedCell(int row, int col)
 {
-	if (selectedCells[0].first >= 0 && selectedCells[0].second >= 0 &&
-		selectedCells[1].first >= 0 && selectedCells[1].second >= 0)
+	if (hasSelectedPair())
 	{
 		selectedCells = { {{-1, -1}, {-1, -1}} };
 	}
@@ -168,6 +167,12 @@ std::vector<std::vector<std::pair<int, int>>> Grid::getChipsToSlide() const
 	addGeneratedChipsToChipsToSlide(chipsToSlide, emptyCellsCountInCols);
 
 	return chipsToSlide;
+}
+
+bool Grid::hasSelectedPair() const
+{
+	return selectedCells[0].first >= 0 && selectedCells[0].second >= 0 &&
+		   selectedCells[1].first >= 0 && selectedCells[1].second >= 0;
 }
 
 std::vector<int> Grid::getEmptyCellsCountInCols() const

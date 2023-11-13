@@ -11,12 +11,12 @@ Match3System::Match3System(entt::registry& registry, entt::dispatcher& dispatche
 
 Match3System::~Match3System()
 {
-	dispatcher.sink<events::ClickGridEvent>().disconnect(this);
+	dispatcher.sink<events::ClickMatch3Event>().disconnect(this);
 }
 
 void Match3System::init(const constants::Constants& constants)
 {
-	dispatcher.sink<events::ClickGridEvent>().connect<&Match3System::onChipClicked>(this);
+	dispatcher.sink<events::ClickMatch3Event>().connect<&Match3System::onClick>(this);
 
 	grid = std::make_unique<match3::Grid>();
 	grid->init(constants);
@@ -38,43 +38,35 @@ void Match3System::init(const constants::Constants& constants)
 		}
 		++gridRowNum;
 	}
+
+	changeState(eGridTurnState::PLAYER_TURN);
 }
 
 void Match3System::update(double delta)
 {
-	if (isNeedUpdateSelected)
+	switch (gridTurnState)
 	{
+	case eGridTurnState::INVALID:
+	case eGridTurnState::PLAYER_TURN:
+		break;
+
+	case eGridTurnState::UPDATE_SELECTED:
 		updateSelected();
-		isNeedUpdateSelected = false;
-		return;
-	}
-	if (isNeedSlideChipsDown)
-	{
-		const auto chipsToSlide = grid->getChipsToSlide();
-		grid->slideChipsDown();
+		changeState(eGridTurnState::SWAP_SELECTED);
+		break;
 
-		slideChips(chipsToSlide);
+	case eGridTurnState::SWAP_SELECTED:
+		trySwapChips() ? changeState(eGridTurnState::DESTROY_COMBOS) : changeState(eGridTurnState::PLAYER_TURN);
+		break;
 
-		checkSliddenChips(chipsToSlide);
+	case eGridTurnState::DESTROY_COMBOS:
+		tryDestroyChips() ? changeState(eGridTurnState::SLIDE_CHIPS) : changeState(eGridTurnState::PLAYER_TURN);
+		break;
 
-		isNeedSlideChipsDown = false;
-		isNeedToCheckForCombos = true;
-		return;
-	}
-	if (isNeedToCheckForCombos)
-	{
-		const auto chipsToDestroy = grid->destroyMarkedChips();
-
-		if (chipsToDestroy.empty())
-			isNeedSlideChipsDown = false;
-		else
-		{
-			resetSelected();
-			isNeedSlideChipsDown = true;
-		}
-
-		destroyChips(chipsToDestroy);
-		return;
+	case eGridTurnState::SLIDE_CHIPS:
+		slideChips();
+		changeState(eGridTurnState::DESTROY_COMBOS);
+		break;
 	}
 }
 
@@ -83,8 +75,6 @@ void Match3System::render(SDL_Renderer* renderer) {}
 void Match3System::updateSelected()
 {
 	const auto selected = grid->getSelectedCells();
-	std::vector<entt::entity> selectedCells;
-
 	auto view = registry.view<GridCellTag, GridPositionComponent, SpriteComponent>();
 	for (auto& entity : view)
 	{
@@ -96,14 +86,7 @@ void Match3System::updateSelected()
 			if (pos.first != gridPosition.row || pos.second != gridPosition.col) continue;
 
 			textureName = "cellTextureSelected";
-			selectedCells.emplace_back(entity);
 			break;
-		}
-
-		if (selectedCells.size() == 2)
-		{
-			swapChips(selected);
-			selectedCells.clear();
 		}
 
 		auto& spriteComponent = view.get<SpriteComponent>(entity);
@@ -136,9 +119,20 @@ void Match3System::resetSelected()
 	}
 }
 
-void Match3System::swapChips(const std::array<std::pair<int, int>, 2>& selected)
+bool Match3System::trySwapChips()
 {
-	std::vector<entt::entity> selectedChips;
+	if (!grid->hasSelectedPair())
+		return false;
+	
+	swapChips();
+	resetSelected();
+	return true;
+}
+
+void Match3System::swapChips()
+{
+	const auto selected = grid->getSelectedCells();
+	std::vector<entt::entity> selectedChipEntities;
 
 	auto chipView = registry.view<ChipTag>();
 
@@ -147,26 +141,30 @@ void Match3System::swapChips(const std::array<std::pair<int, int>, 2>& selected)
 		auto& chipGridPosition = registry.get<GridPositionComponent>(chipEntity);
 		if ((chipGridPosition.row == selected[0].first && chipGridPosition.col == selected[0].second) ||
 			(chipGridPosition.row == selected[1].first && chipGridPosition.col == selected[1].second))
-			selectedChips.emplace_back(chipEntity);
+			selectedChipEntities.emplace_back(chipEntity);
 	}
 
-	if (selectedChips.size() == 2)
-	{
-		auto& spriteComponent1 = registry.get<SpriteComponent>(selectedChips[0]);
-		auto& spriteComponent2 = registry.get<SpriteComponent>(selectedChips[1]);
+	assert(selectedChipEntities.size() == 2);
 
-		std::swap(spriteComponent1, spriteComponent2);
-	}
+	auto& spriteComponent1 = registry.get<SpriteComponent>(selectedChipEntities[0]);
+	auto& spriteComponent2 = registry.get<SpriteComponent>(selectedChipEntities[1]);
+	std::swap(spriteComponent1, spriteComponent2);
 
 	grid->swapSelected();
 
 	grid->findAndMarkCombo(selected[0].first, selected[0].second);
 	grid->findAndMarkCombo(selected[1].first, selected[1].second);
-
-	isNeedToCheckForCombos = true;
 }
 
-void Match3System::slideChips(const std::vector<std::vector<std::pair<int, int>>>& chipsToSlide)
+void Match3System::slideChips()
+{
+	const auto chipsToSlide = grid->getChipsToSlide();
+	grid->slideChipsDown();
+	slideChipEntities(chipsToSlide);
+	checkSliddenChipCombos(chipsToSlide);
+}
+
+void Match3System::slideChipEntities(const std::vector<std::vector<std::pair<int, int>>>& chipsToSlide)
 {
 	int col = 0;
 	// add newly generated chip entities
@@ -205,16 +203,29 @@ void Match3System::slideChips(const std::vector<std::vector<std::pair<int, int>>
 	}
 }
 
-void Match3System::checkSliddenChips(const std::vector<std::vector<std::pair<int, int>>>& chipsToSlide)
+void Match3System::checkSliddenChipCombos(const std::vector<std::vector<std::pair<int, int>>>& chipsToSlide)
 {
 	int col = 0;
 	for (const auto& chipsToSlideInCol : chipsToSlide)
 	{
-		for (const auto& chipToSlide : chipsToSlideInCol)
-			grid->findAndMarkCombo(chipToSlide.second, col);
-
+		for (const auto& chipToSlide : chipsToSlideInCol) grid->findAndMarkCombo(chipToSlide.second, col);
 		++col;
 	}
+}
+
+bool Match3System::tryDestroyChips()
+{
+	const auto chipsToDestroy = grid->destroyMarkedChips();
+
+	if (chipsToDestroy.empty())
+		return false;
+	else
+	{
+		destroyChips(chipsToDestroy);
+		return true;
+		resetSelected();
+	}
+
 }
 
 void Match3System::destroyChips(const std::vector<std::pair<int, int>>& chipsToDestroy)
@@ -274,8 +285,35 @@ void Match3System::addGridChipEntity(int row, int col, int startRow, int startCo
 	registry.emplace<GridPositionComponent>(entityChip, startRow, startCol);
 }
 
-void Match3System::onChipClicked(const events::ClickGridEvent& event)
+void Match3System::changeState(eGridTurnState newGridTurnState)
 {
-	grid->setSelectedCell(event.row, event.col);
-	isNeedUpdateSelected = true;
+	if (gridTurnState == newGridTurnState)
+		return;
+
+	gridTurnState = newGridTurnState;
+
+	if (newGridTurnState == eGridTurnState::PLAYER_TURN)
+	{
+		dispatcher.trigger(events::GridReadyEvent{});
+	}
+}
+
+void Match3System::onClick(const events::ClickMatch3Event& event)
+{
+	auto view = registry.view<ChipTag>();
+
+	for (auto& entity : view)
+	{
+		auto& transform = registry.get<TransformComponent>(entity);
+
+		if (event.mouseX >= transform.x && event.mouseX <= transform.x + transform.w &&
+			event.mouseY >= transform.y && event.mouseY <= transform.y + transform.h)
+		{
+			auto& clickable = registry.get<ClickableComponent>(entity);
+			auto& gridPosition = registry.get<GridPositionComponent>(entity);
+
+			grid->setSelectedCell(gridPosition.row, gridPosition.col);
+			changeState(eGridTurnState::UPDATE_SELECTED);
+		}
+	}
 }

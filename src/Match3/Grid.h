@@ -26,6 +26,7 @@ public:
 	void slideChipsDown();
 	std::vector<std::vector<std::pair<int, int>>> getChipsToSlide() const;
 
+	bool hasSelectedPair() const;
 	const std::array<std::pair<int, int>, 2> getSelectedCells() const { return selectedCells; }
 	const std::vector<std::vector<std::unique_ptr<ChipBase>>>& getGrid() const { return grid; }
 

@@ -1,6 +1,5 @@
 #include "InputManager.h"
 
-#include "Components.h"
 #include "Constants.h"
 #include "Events.h"
 
@@ -10,31 +9,34 @@
 namespace input
 {
 
-void InputManager::handleMouseEvent(entt::registry& registry, entt::dispatcher& dispatcher, const constants::Constants& constants)
+void InputManager::init(entt::dispatcher& dispatcher)
 {
+	dispatcher.sink<events::PlayerTurnEvent>().connect<&InputManager::onPlayerTurn>(this);
+	dispatcher.sink<events::GridTurnEvent>().connect<&InputManager::onGridTurn>(this);
+}
+
+void InputManager::handleMouseEvent(entt::dispatcher& dispatcher, const constants::Constants& constants)
+{
+	if (blockClicks) return;
+
 	SDL_GetMouseState(&mouseX, &mouseY);
 
-	auto view = registry.view<ChipTag>();
+	int scaledMouseX = static_cast<int>(mouseX / constants.getScale());
+	int scaledMouseY = static_cast<int>(mouseY / constants.getScale());
 
-	for (auto& entity : view)
-	{
-		auto& transform = registry.get<TransformComponent>(entity);
+	dispatcher.trigger(events::ClickGameStateEvent{ scaledMouseX, scaledMouseY });
 
-		int scaledWidth = static_cast<int>(transform.w * constants.getScale());
-		int scaledHeight = static_cast<int>(transform.h * constants.getScale());
+	blockClicks = true;
+}
 
-		int scaledX = static_cast<int>(transform.x * constants.getScale());
-		int scaledY = static_cast<int>(transform.y * constants.getScale());
+void InputManager::onPlayerTurn()
+{
+	blockClicks = false;
+}
 
-		if (mouseX >= scaledX && mouseX <= scaledX + scaledWidth &&
-			mouseY >= scaledY && mouseY <= scaledY + scaledHeight)
-		{
-			auto& clickable = registry.get<ClickableComponent>(entity);
-			auto& gridPosition = registry.get<GridPositionComponent>(entity);
-
-			dispatcher.trigger(events::ClickGridEvent{ gridPosition.row, gridPosition.col });
-		}
-	}
+void InputManager::onGridTurn()
+{
+	blockClicks = true;
 }
 
 }

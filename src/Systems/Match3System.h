@@ -10,13 +10,23 @@ namespace match3
 
 namespace events
 {
-	struct ClickGridEvent;
+	struct ClickMatch3Event;
 }
 
 namespace constants
 {
 	class Constants;
 }
+
+enum class eGridTurnState
+{
+	INVALID,
+	PLAYER_TURN,
+	UPDATE_SELECTED,
+	SWAP_SELECTED,
+	DESTROY_COMBOS,
+	SLIDE_CHIPS
+};
 
 class Match3System : public System
 {
@@ -33,21 +43,24 @@ private:
 	// Service
 	void updateSelected();
 	void resetSelected();
-	void swapChips(const std::array<std::pair<int, int>, 2>& selected);
-	void slideChips(const std::vector<std::vector<std::pair<int, int>>>& chipsToSlide);
-	void checkSliddenChips(const std::vector<std::vector<std::pair<int, int>>>& chipsToSlide);
+	bool trySwapChips();
+	void swapChips();
+	void slideChips();
+	void slideChipEntities(const std::vector<std::vector<std::pair<int, int>>>& chipsToSlide);
+	void checkSliddenChipCombos(const std::vector<std::vector<std::pair<int, int>>>& chipsToSlide);
+	bool tryDestroyChips();
 	void destroyChips(const std::vector<std::pair<int, int>>& chipsToDestroy);
 
 	void addGridCellEntity(int row, int col);
 	void addGridChipEntity(int row, int col);
 	void addGridChipEntity(int row, int col, int startRow, int startCol); // todo: fix
 
+	void changeState(eGridTurnState newGridTurnState);
+
 	// Events
-	void onChipClicked(const events::ClickGridEvent& event);
+	void onClick(const events::ClickMatch3Event& event);
 
 	// Members
+	eGridTurnState gridTurnState{ eGridTurnState::INVALID };
 	std::unique_ptr<match3::Grid> grid;
-	bool isNeedUpdateSelected{ false };
-	bool isNeedSlideChipsDown{ false };
-	bool isNeedToCheckForCombos{ false };
 };

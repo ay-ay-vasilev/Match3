@@ -83,7 +83,7 @@ void TextureManager::loadFromJsonObject(const nlohmann::json& assetsJson)
 		{
 			const std::string assetName{ asset["name"] };
 			const std::string assetPath{ asset["path"] };
-			const SDL_Rect assetRect{ 0, 0, asset["w"], asset["h"] };
+			const SDL_Rect assetRect{ asset.value("x", 0), asset.value("y", 0), asset["w"], asset["h"] };
 
 			textureMap[assetName] = { assetRect, loadTexture(assetPath, renderer) };
 		}

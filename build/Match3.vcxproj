@@ -27,6 +27,7 @@
     <ClCompile Include="..\src\Match3\Grid.cpp" />
     <ClCompile Include="..\src\Systems\Match3System.cpp" />
     <ClCompile Include="..\src\Systems\RenderSystem.cpp" />
+    <ClCompile Include="..\src\Systems\GameStateSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\Common\Events.h" />
@@ -39,6 +40,7 @@
     <ClInclude Include="..\src\Match3\Grid.h" />
     <ClInclude Include="..\src\Systems\Match3System.h" />
     <ClInclude Include="..\src\Systems\RenderSystem.h" />
+    <ClInclude Include="..\src\Systems\GameStateSystem.h" />
     <ClInclude Include="..\src\Systems\System.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

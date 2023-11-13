@@ -1,7 +1,7 @@
 {
     "screen_width" : 800,
     "screen_height" : 800,
-    "scale" : 2,
+    "scale" : 0.25,
     "grid_size" : 10,
     "chip_generation_rules" :
     {
@@ -9,27 +9,23 @@
         [
             {
                 "name": "red",
-                "probability": 0.166
+                "probability": 0.2
             },
             {
                 "name": "green",
-                "probability": 0.166
+                "probability": 0.2
             },
             {
                 "name": "blue",
-                "probability": 0.166
+                "probability": 0.2
             },
             {
                 "name": "yellow",
-                "probability": 0.166
+                "probability": 0.2
             },
             {
                 "name": "purple",
-                "probability": 0.166
-            },
-            {
-                "name": "orange",
-                "probability": 0.166
+                "probability": 0.2
             }
         ]
     }

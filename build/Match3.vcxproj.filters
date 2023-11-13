@@ -63,6 +63,9 @@
     <ClCompile Include="..\src\Match3\Grid.cpp">
       <Filter>Source Files\Match3</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Systems\GameStateSystem.cpp">
+      <Filter>Source Files\Systems</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\Game.h">
@@ -97,6 +100,9 @@
     </ClInclude>
     <ClInclude Include="..\src\Match3\Chips.h">
       <Filter>Header Files\Match3</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Systems\GameStateSystem.h">
+      <Filter>Header Files\Systems</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

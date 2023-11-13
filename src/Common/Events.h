@@ -3,9 +3,19 @@
 namespace events
 {
 
-struct ClickGridEvent
+struct ClickGameStateEvent
 {
-	int row, col;
+	int mouseX, mouseY;
 };
+
+struct ClickMatch3Event
+{
+	int mouseX, mouseY;
+};
+
+struct GridReadyEvent {};
+
+struct PlayerTurnEvent {};
+struct GridTurnEvent {};
 
 }

@@ -4,50 +4,54 @@
         {
             "name" : "cellTexture",
             "path" : "assets/images/cell_frame.png",
-            "w" : 32,
-            "h" : 32
+            "w" : 297,
+            "h" : 297
         },
         {
             "name" : "cellTextureSelected",
             "path" : "assets/images/cell_frame_selected.png",
-            "w" : 32,
-            "h" : 32
+            "w" : 297,
+            "h" : 297
         },
         {
             "name" : "chip_red",
-            "path" : "assets/images/chip_red.png",
-            "w" : 32,
-            "h" : 32
+            "path" : "assets/images/game_icons_crystal_set.png",
+            "x" : 297,
+            "y" : 0,
+            "w" : 297,
+            "h" : 297
         },
         {
             "name" : "chip_green",
-            "path" : "assets/images/chip_green.png",
-            "w" : 32,
-            "h" : 32
+            "path" : "assets/images/game_icons_crystal_set.png",
+            "x" : 594,
+            "y" : 0,
+            "w" : 297,
+            "h" : 297
         },
         {
             "name" : "chip_blue",
-            "path" : "assets/images/chip_blue.png",
-            "w" : 32,
-            "h" : 32
-        },
-        {
-            "name" : "chip_orange",
-            "path" : "assets/images/chip_orange.png",
-            "w" : 32,
-            "h" : 32
+            "path" : "assets/images/game_icons_crystal_set.png",
+            "x" : 0,
+            "y" : 0,
+            "w" : 297,
+            "h" : 297
         },
         {
             "name" : "chip_yellow",
-            "path" : "assets/images/chip_yellow.png",
-            "w" : 32,
-            "h" : 32
+            "path" : "assets/images/game_icons_crystal_set.png",
+            "x" : 1188,
+            "y" : 0,
+            "w" : 297,
+            "h" : 297
         },
         {
             "name" : "chip_purple",
-            "path" : "assets/images/chip_purple.png",
-            "w" : 32,
-            "h" : 32
+            "path" : "assets/images/game_icons_crystal_set.png",
+            "x" : 891,
+            "y" : 0,
+            "w" : 297,
+            "h" : 297
         }
     ]
 }

@@ -21,7 +21,7 @@ public:
 	}
 
 private:
-	InputManager() {}
+	InputManager() {};
 
 public:
 	InputManager(const InputManager&) = delete;
@@ -30,12 +30,20 @@ public:
 	InputManager& operator=(InputManager&&) = delete;
 
 	// Interface
-	void handleMouseEvent(entt::registry& registry, entt::dispatcher& dispatcher, const constants::Constants& constants);
+	void init(entt::dispatcher& dispatcher);
+	void handleMouseEvent(entt::dispatcher& dispatcher, const constants::Constants& constants);
 
 private:
+	// Events
+	void onPlayerTurn();
+	void onGridTurn();
+
 	// Service
+
+	//Members
 	int mouseX{ 0 };
 	int mouseY{ 0 };
+	bool blockClicks{ true };
 };
 
 }

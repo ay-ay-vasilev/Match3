@@ -6,6 +6,7 @@
 #include "InputManager.h"
 #include "Components.h"
 #include "RenderSystem.h"
+#include "GameStateSystem.h"
 #include "Match3System.h"
 #include "Constants.h"
 
@@ -54,8 +55,10 @@ void Game::init()
 	textureManager.init(renderer, "../data/assets.json");
 
 	auto& inputManager = input::InputManager::getInstance();
+	inputManager.init(dispatcher);
 
 	systems.emplace_back(new RenderSystem(registry, dispatcher));
+	systems.emplace_back(new GameStateSystem(registry, dispatcher));
 	systems.emplace_back(new Match3System(registry, dispatcher));
 
 	for (auto& system : systems)
@@ -78,7 +81,7 @@ void Game::handleEvents()
 			break;
 
 		case SDL_MOUSEBUTTONDOWN:
-			input::InputManager::getInstance().handleMouseEvent(registry, dispatcher, constants);
+			input::InputManager::getInstance().handleMouseEvent(dispatcher, constants);
 			break;
 		default:
 			break;
